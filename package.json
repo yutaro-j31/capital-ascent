@@ -1,0 +1,13 @@
+{
+  "name": "capital-ascent",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "balance": "node tools/balance-sim.cjs",
+    "test:mobile": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.0"
+  }
+}
