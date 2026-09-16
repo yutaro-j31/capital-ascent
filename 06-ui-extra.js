@@ -21,10 +21,32 @@ function startup(){
   return `<div class="modal"><div class="modalbox"><h1>CAPITAL ASCENT</h1><p class="sub">小さな事業から始め、会社を育て、Exitし、最後は資本を動かす側へ。</p><div class="field"><label>会社名</label><input id="companyName" value="ASCENT HOLDINGS"></div><div class="field"><label>創業地域</label><select id="region">${REGIONS.map(x=>`<option>${x}</option>`).join('')}</select></div><div class="field"><label>最初の事業</label></div><div class="choices">${Object.entries(PILLARS).map(([id,p])=>`<button class="choice ${selectedFounding===id?'selected':''}" data-found="${id}"><b>${p.icon} ${p.name}</b><small>${p.desc}</small></button>`).join('')}</div><button class="btn primary wide" data-act="start">この会社で始める</button></div></div>`;
 }
 
+function currentViewKey(){
+  if(!state)return 'startup';
+  if(tab==='operations'){
+    const store=typeof selectedStoreDetail!=='undefined'&&selectedStoreDetail?selectedStoreDetail:'';
+    const mapBusiness=typeof selectedMapBusiness!=='undefined'&&selectedMapBusiness?selectedMapBusiness:'';
+    const mapRegion=typeof selectedMapRegion!=='undefined'&&selectedMapRegion?selectedMapRegion:'';
+    if(store)return `operations:store:${store}`;
+    if(mapBusiness)return `operations:map:${mapBusiness}:${mapRegion}`;
+    return `operations:business:${selectedBusiness||''}`;
+  }
+  if(tab==='market')return `market:${marketPane}`;
+  return tab;
+}
+
 function render(){
-  if(!state){app.innerHTML=startup();bind();return;}
+  const previousView=document.documentElement.dataset.viewKey||'';
+  if(!state){
+    app.innerHTML=startup();bind();
+    document.documentElement.dataset.viewKey='startup';
+    return;
+  }
   const body={overview,operations,market,pe:peView,legacy}[tab]();
   app.innerHTML=topbar()+body+nav();bind();
+  const nextView=currentViewKey();
+  document.documentElement.dataset.viewKey=nextView;
+  if(previousView&&previousView!==nextView)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
 }
 
 function bind(){
