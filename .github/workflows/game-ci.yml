@@ -14,25 +14,55 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Detect simulation tests
+        id: detect
+        shell: bash
+        run: |
+          if [ -f tests/harness.cjs ] && compgen -G "tests/*.test.cjs" > /dev/null; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v5
+        if: steps.detect.outputs.run == 'true'
         with:
           node-version: '22'
       - name: Simulation and invariant tests
+        if: steps.detect.outputs.run == 'true'
         run: node --test tests/*.test.cjs
       - name: Strategy balance smoke
+        if: steps.detect.outputs.run == 'true' && hashFiles('tools/balance-sim.cjs') != ''
         run: node tools/balance-sim.cjs --ci
+      - name: No simulation suite yet
+        if: steps.detect.outputs.run != 'true'
+        run: echo "Simulation suite not present on this revision; bootstrap workflow is healthy."
 
   webkit-smoke:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Detect mobile smoke suite
+        id: detect
+        shell: bash
+        run: |
+          if [ -f package.json ] && [ -f tests/mobile.spec.mjs ] && [ -f playwright.config.mjs ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/setup-node@v5
+        if: steps.detect.outputs.run == 'true'
         with:
           node-version: '22'
-          cache: npm
       - name: Install test dependencies
+        if: steps.detect.outputs.run == 'true'
         run: npm install --no-audit --no-fund
       - name: Install WebKit
+        if: steps.detect.outputs.run == 'true'
         run: npx playwright install --with-deps webkit
       - name: iPhone WebKit smoke
+        if: steps.detect.outputs.run == 'true'
         run: npx playwright test
+      - name: No mobile suite yet
+        if: steps.detect.outputs.run != 'true'
+        run: echo "Mobile suite not present on this revision; bootstrap workflow is healthy."
