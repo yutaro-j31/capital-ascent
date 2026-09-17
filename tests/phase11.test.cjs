@@ -24,3 +24,14 @@ test('Phase 11 native borrowing and repayment preserve company versus personal c
   assert.equal(r.api.borrowNative(5000000),true);assert.equal(r.api.get().personal.cash,personal);assert.equal(r.api.get().company.cash,companyBefore+5000000);assert.equal(r.api.get().company.debt,debtBefore+5000000);
   assert.equal(r.api.repayNative(2000000),true);assert.equal(r.api.get().personal.cash,personal);assert.equal(r.api.get().company.debt,debtBefore+3000000);
 });
+
+
+test('Phase 11 Fund I GP commitment is reachable but still requires founder capital',()=>{
+  const r=createRuntime();r.api.fresh('P11 FUND ACCESS','ramen','東京');
+  r.api.eval('state.pe.unlocked=true;state.personal.cash=20000000;');
+  assert.equal(r.api.raiseFund(),true);
+  const s=plain(r.api.get()),fund=s.pe.funds[0];
+  assert.ok(fund.gpCommit/fund.commitments>=.02&&fund.gpCommit/fund.commitments<=.04);
+  assert.ok(fund.gpContributed>0&&fund.gpContributed<20000000);
+  assert.equal(fund.calledCapital,290000000);
+});
