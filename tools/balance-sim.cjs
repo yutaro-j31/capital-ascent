@@ -8,26 +8,28 @@ function act(r,strategy,turn){
   if(strategy==='conservative'){
     a.eval(`state.company.businesses.ramen.adSpend=0;state.company.businesses.ramen.price=PILLARS.ramen.price;`);
   }else if(strategy==='low_price'){
-    a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*.90);state.company.businesses.ramen.adSpend=200000;`);
+    a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*.90);state.company.businesses.ramen.adSpend=30000;`);
   }else if(strategy==='premium'){
-    a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*1.16);state.company.businesses.ramen.adSpend=250000;`);
-    if(turn%4===0)a.invest('ramen','quality',500000);
+    a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*1.16);state.company.businesses.ramen.adSpend=60000;`);
+    if(turn%6===0&&a.get().company.cash>5000000)a.invest('ramen','quality',500000);
   }else if(strategy==='advertising'){
-    a.eval(`state.company.businesses.ramen.adSpend=650000;`);
-    if(turn%6===0)a.invest('ramen','brand',500000);
+    if(turn%6===0)a.eval(`if(state.company.cash>9000000&&state.company.stores.filter(x=>x.businessID==='ramen').length<5)openStore('ramen');`);
+    a.eval(`{const n=state.company.stores.filter(x=>x.businessID==='ramen').length;state.company.businesses.ramen.adSpend=Math.min(180000,50000+n*25000);}`);
+    if(turn%8===0&&a.get().company.cash>6000000)a.invest('ramen','brand',500000);
   }else if(strategy==='efficiency'){
-    a.eval(`state.company.businesses.ramen.adSpend=100000;`);
-    if(turn%4===0)a.invest('ramen',turn%8===0?'digital':'efficiency',500000);
+    a.eval(`state.company.businesses.ramen.adSpend=20000;`);
+    if(turn%6===0&&a.get().company.cash>5000000)a.invest('ramen',turn%12===0?'digital':'efficiency',500000);
   }else if(strategy==='expansion'){
-    if(turn%3===0)a.eval(`if(state.company.cash>5000000)openStore('ramen');`);
+    if(turn%4===0)a.eval(`if(state.company.cash>8000000)openStore('ramen');`);
   }else if(strategy==='diversified'){
-    const order=['conveni','gym','realEstateAgency','productVentures'];const id=order[Math.floor(turn/6)%order.length];
-    if(turn%6===0)a.eval(`if(state.company.cash>15000000&&!state.company.businesses['${id}'])addBusiness('${id}');`);
-    if(turn%4===0)a.eval(`if(state.company.cash>9000000&&state.company.businesses.conveni)openStore('conveni');`);
+    const order=['conveni','realEstateAgency','productVentures','gym'];const id=order[Math.floor(turn/8)%order.length];
+    if(turn%8===0)a.eval(`if(state.company.cash>12000000&&!state.company.businesses['${id}'])addBusiness('${id}');`);
+    if(turn%8===4)a.eval(`if(state.company.cash>10000000&&state.company.businesses.conveni&&state.company.stores.filter(x=>x.businessID==='conveni').length<3)openStore('conveni');`);
   }else if(strategy==='leveraged'){
-    if(turn%8===0)a.eval(`if(state.company.debt<companyValue(state)*.25)borrowCompany();`);
-    if(turn%3===0)a.eval(`if(state.company.cash>6000000)openStore('ramen');`);
+    if(turn%10===0)a.eval(`if(state.company.debt<companyValue(state)*.18&&state.company.credit>35)borrowCompany();`);
+    if(turn%4===0)a.eval(`if(state.company.cash>8000000)openStore('ramen');`);
   }
+  a.eval(`if(!state.company.public&&companyValue(state)>=80000000&&state.company.lastWeekProfit>0)ipo();`);
 }
 
 function runOne(strategy,seedIndex,weeks=1040){
@@ -66,7 +68,7 @@ if(require.main===module){
   const ci=process.argv.includes('--ci');const result=runBalance({seeds:ci?6:12,weeks:ci?520:1040});
   console.log(JSON.stringify(result.summary,null,2));
   if(!Number.isFinite(result.summary.dominantShare))process.exitCode=1;
-  if(result.summary.dominantShare>.80)console.warn(`BALANCE WARNING: ${result.summary.dominantStrategy} wins ${(result.summary.dominantShare*100).toFixed(0)}% of seeds`);
+  if(result.summary.dominantShare>.80){console.error(`BALANCE FAIL: ${result.summary.dominantStrategy} wins ${(result.summary.dominantShare*100).toFixed(0)}% of seeds`);process.exitCode=1;}
 }
 
 module.exports={STRATEGIES,runOne,runBalance,summarize};
