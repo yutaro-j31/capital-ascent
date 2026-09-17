@@ -38,3 +38,19 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+      - name: Set up Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      - name: Install smoke-test dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+
+      - name: Published iPhone WebKit smoke
+        env:
+          PLAYWRIGHT_BASE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: npx playwright test
