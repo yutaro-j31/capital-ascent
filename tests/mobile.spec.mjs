@@ -2,7 +2,7 @@ import {test,expect} from '@playwright/test';
 
 test('iPhone WebKit can found a company, advance time and inspect the city',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
-  await page.goto('/');
+  await page.goto('./');
   await expect(page).toHaveTitle('CAPITAL ASCENT');
   await expect(page.locator('[data-act="start"]')).toBeVisible();
   await page.locator('[data-act="start"]').click();
