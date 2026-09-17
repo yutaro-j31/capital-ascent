@@ -11,13 +11,13 @@ function act(r,strategy,turn){
     a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*.90);state.company.businesses.ramen.adSpend=200000;`);
   }else if(strategy==='premium'){
     a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*1.16);state.company.businesses.ramen.adSpend=250000;`);
-    if(turn%4===0)a.api.invest('ramen','quality',500000);
+    if(turn%4===0)a.invest('ramen','quality',500000);
   }else if(strategy==='advertising'){
     a.eval(`state.company.businesses.ramen.adSpend=650000;`);
-    if(turn%6===0)a.api.invest('ramen','brand',500000);
+    if(turn%6===0)a.invest('ramen','brand',500000);
   }else if(strategy==='efficiency'){
     a.eval(`state.company.businesses.ramen.adSpend=100000;`);
-    if(turn%4===0)a.api.invest('ramen',turn%8===0?'digital':'efficiency',500000);
+    if(turn%4===0)a.invest('ramen',turn%8===0?'digital':'efficiency',500000);
   }else if(strategy==='expansion'){
     if(turn%3===0)a.eval(`if(state.company.cash>5000000)openStore('ramen');`);
   }else if(strategy==='diversified'){
