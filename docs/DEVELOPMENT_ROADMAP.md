@@ -1,13 +1,39 @@
 # CAPITAL ASCENT — Development Roadmap
 
 Last audited: 2026-09-17
-Baseline: `main` at `f83d76992fc4bc0502f034cba0fce739593ad99d`
+Implementation status: **Phase 0–8 implemented on PR #2 and verified by Game CI**
 
-This document is the standing development roadmap for CAPITAL ASCENT. Before starting substantial development work, verify the current repository state and then compare the proposed work against this roadmap. Do not treat this document as a substitute for checking the actual code.
+This document is the standing development roadmap and design contract for CAPITAL ASCENT. Before starting substantial development work, verify the current repository state first, then compare proposed work against this document. Do not treat this document as a substitute for checking the actual code.
+
+## Current implementation status
+
+The original Phase 0–8 roadmap has now been implemented as an integrated gameplay pass.
+
+Verified on the PR branch before merge:
+
+- Game CI: green.
+- Simulation/invariant tests: 13/13 passing.
+- Deterministic 10-year replay: passing.
+- 100-year / 5,200-week simulation: passing with finite state and bounded save size.
+- Legacy `capital_ascent_v1` migration: passing.
+- Rolling save backup recovery: passing.
+- City property/rival/simulation consistency: passing.
+- Delayed investment lifecycle: passing.
+- Company valuation double-count invariant: passing.
+- Foundation assets excluded from personal net worth: passing.
+- M&A operating-subsidiary lifecycle: passing.
+- PE DD → acquisition → initiative lifecycle: passing.
+- Management delegation policy automation: passing.
+- Strategy-bot balance smoke: passing.
+- iPhone WebKit smoke: passing.
+
+Latest calibrated 10-year strategy smoke used six deterministic seeds. No strategy exceeded the dominant-strategy gate; Premium, Advertising and Expansion each won two of six seed comparisons, for a maximum dominant share of 33.3%.
+
+The roadmap is therefore no longer a list of missing baseline features. It is now the **maintenance and regression contract** for future development.
 
 ## Product direction
 
-CAPITAL ASCENT should become a management simulation where one decision propagates through multiple systems, not a collection of unrelated features.
+CAPITAL ASCENT should remain a management simulation where one decision propagates through multiple systems, not a collection of unrelated features.
 
 Core loop:
 
@@ -18,234 +44,109 @@ Core loop:
 5. Explain why the outcome changed.
 6. Make the next decision.
 
-The design target is to increase causal depth before adding more breadth.
+The design target remains: increase causal depth before adding more breadth.
 
-## Current strengths
+## Design-principle audit — post implementation
 
-The repository already has several strong foundations:
-
-- Weekly progression and deterministic hash-based noise.
-- Separate company cash, personal cash and PE fund cash.
-- Five businesses with different economics rather than simple reskins.
-- IPO, company sale, public-market investing, borrowing, M&A and PE progression.
-- Mobile-first navigation and per-business management screens.
-- Property selection, city maps and rival visibility.
-- Deterministic state suitable for automated simulation testing.
-
-## Design-principle audit
-
-| # | Principle | Status | Main gap |
+| # | Principle | Status | Implementation |
 |---|---|---|---|
-| 1 | Decision → time → consequence | Partial | Results are shown but causes are not sufficiently explained. |
-| 2 | Player role changes as company grows | Partial | New modes unlock, but store-level micromanagement remains. |
-| 3 | Preserve management friction, remove UI friction | Partial | Mobile UI is good; some actions still rely on prompt/alert. |
-| 4 | Avoid one dominant strategy | Unverified | No strategy-bot or balance simulation exists. |
-| 5 | Investments should have delayed effects | Missing | Most investments increase stats immediately. |
-| 6 | Uncertainty should interact with decisions | Good base | Deterministic noise exists; event layer is still thin. |
-| 7 | Explain why results changed | Missing | No revenue/profit/demand bridge. |
-| 8 | Prevent soft locks and impossible states | Partial | Guard checks exist but are not covered by systematic tests. |
-| 9 | More depth should not mean more taps | Partial | Risk grows as the store count increases. |
-| 10 | Design for long-run play | Partial | No 30/100-year automated validation yet. |
-| 11 | Treat saves as a product feature | Missing | Single localStorage save, no migration or backup generations. |
-| 12 | AI implements; design rules stay explicit | Partial | Repository lacks a durable test/balance specification layer. |
+| 1 | Decision → time → consequence | Implemented | Weekly simulation plus Management Brief. |
+| 2 | Player role changes as company grows | Implemented baseline | Store-count management tiers and delegated business policies. |
+| 3 | Preserve management friction, remove UI friction | Improved | Mobile-first UI retained; scale can be handled by policy. |
+| 4 | Avoid one dominant strategy | Implemented gate | Deterministic strategy bots run in CI; >80% seed dominance fails CI. |
+| 5 | Investments should have delayed effects | Implemented | Major business improvements are timed projects with upfront cash commitment. |
+| 6 | Uncertainty should interact with decisions | Implemented baseline | Deterministic competitors/events with mitigation through prior investment. |
+| 7 | Explain why results changed | Implemented baseline | Weekly revenue/profit deltas, causal drivers and risk flags. |
+| 8 | Prevent soft locks and impossible states | Guarded/tested | State validation, finite-state checks and long-run simulation. |
+| 9 | More depth should not mean more taps | Improved | Delegation/policy layer reduces later micromanagement. |
+| 10 | Design for long-run play | Implemented gate | 100-year simulation and save-size bound run automatically. |
+| 11 | Treat saves as a product feature | Implemented | Schema V2, migration, validation, rolling backups and export/import. |
+| 12 | AI implements; design rules stay explicit | Implemented process | `AGENTS.md`, this roadmap and Game CI are standing development gates. |
 
-## Important implementation findings
+## Phase 0 — Reliability foundation — COMPLETE
 
-### A. City logic is not yet a single source of truth
+Implemented:
 
-`index.html` currently loads `07-map-flow.js` and `08-city-world.js`, but does not load `08-city-map.js` or `09-city-economics.js`.
+- deterministic Node VM test harness
+- 10-year replay test
+- 100-year / 5,200-week simulation
+- NaN / Infinity and finite-state checks
+- save-size bound
+- Save Schema V2 migration while preserving `capital_ascent_v1`
+- rolling backup saves and corrupted-primary recovery
+- export/import support
+- Game CI
+- iPhone WebKit smoke
+- inactive duplicate city runtime cleanup
 
-This creates a maintenance risk: logic can exist in the repository without being active in the shipped game.
+Standing gate: all future changes must keep these tests green.
 
-The intended model should be:
+## Phase 1 — City single source of truth — COMPLETE
 
-- A vacancy has one stable location and one stable site identity.
-- Rival locations visible on the city map are the same rivals used by the economy.
-- Property competition scores are derived from the same rival model used in weekly demand calculations.
-- After leasing a property, the resulting store remains at the same site/location.
-- The same competition pressure shown in UI is the pressure used by simulation.
+The city map is now an economic board rather than a visual-only layer.
 
-### B. Company valuation risks double-counting historical profit
+Implemented:
 
-`companyValue()` currently combines cash, debt, annualized latest profit and cumulative profit. Because prior profit has already flowed into company cash, cumulative profit should not also be treated as a separate operating asset.
+- stable vacancy/site identity
+- stable `x` / `y` / district data
+- visible rivals and weekly economics use the same competition-pressure model
+- leased property coordinates persist into the resulting store
+- property competition score and weekly demand share the same rival inputs
 
-Target model:
+Standing gate: UI competition pressure and simulation competition pressure must never diverge.
 
-`normalized operating earnings × sector multiple + subsidiary value + cash - debt`
+## Phase 2 — Accounting and valuation normalization — COMPLETE
 
-Use a rolling earnings window rather than one latest week. Keep cumulative profit as a historical statistic rather than valuation input.
+Implemented:
 
-### C. M&A is currently too abstract
+- rolling normalized operating earnings
+- sector multiples
+- subsidiary equity value
+- cash less debt
+- cumulative-profit double-count removal
+- credit-driven borrowing capacity
+- credit spread added to borrowing cost
+- donated foundation assets excluded from personal net worth
 
-Current M&A mainly changes a subsidiary count. Acquired companies should become economic objects with their own performance and ownership characteristics.
+Target valuation contract:
 
-Target subsidiary fields include:
+`normalized operating earnings × sector multiple + subsidiary equity value + cash - debt`
 
-- revenue
-- EBITDA / operating profit
-- debt
-- growth
-- business / sector
-- acquisition EV
-- ownership
-- management quality
-- synergy state
+Standing gate: historical profit is a statistic, not a second asset after it has already flowed into cash.
 
-### D. PE due diligence is not sufficiently connected to ownership outcomes
+## Phase 3 — Weekly Management Brief — COMPLETE BASELINE
 
-DD currently reveals quality/risk, but these values should materially affect post-acquisition performance.
+Implemented:
 
-Target connections:
-
-- quality → organic growth / margin / initiative execution
-- risk → downside probability / volatility / debt capacity
-- entry valuation + leverage + operating improvement + exit multiple → realized return
-
-### E. Save architecture is too fragile for a long-form simulation
-
-Current save architecture is a single `localStorage` JSON save with a strict version equality check.
-
-Target Save V2:
-
-- schema versioning
-- `migrateState()`
-- schema validation
-- primary save + rolling backups
-- export/import
-- recovery path after corrupted or incompatible data
-
-## Roadmap
-
-### Phase 0 — Reliability foundation
-
-Goal: make it possible to change the game without silently breaking deterministic simulation, accounting or saves.
-
-#### PR 0-1 — `test/simulation-foundation`
-
-Add:
-
-- deterministic replay test
-- NaN / Infinity scan
-- cash-partition invariants
-- company/personal/fund accounting invariants
-- browser boot smoke
-- iPhone-size smoke
-- 10-year deterministic simulation
-
-Acceptance:
-
-- Same initial state + same actions produce the same terminal state.
-- No non-finite numeric values.
-- Cash cannot move between company/personal/PE buckets except through explicit defined transactions.
-
-#### PR 0-2 — `feat/save-v2`
-
-Add:
-
-- migration pipeline
-- validation
-- primary + rolling backup saves
-- export/import
-- compatibility test for existing `capital_ascent_v1`
-
-#### PR 0-3 — `refactor/city-runtime-cleanup`
-
-Resolve inactive/dead city implementation files.
-
-- Either merge the required logic from `08-city-map.js` / `09-city-economics.js` into the active runtime or delete obsolete variants.
-- At the end, there should be one authoritative city simulation path.
-
-### Phase 1 — City single source of truth
-
-Goal: make the city map an economic game board rather than a visual layer.
-
-Store and site identity should include stable location data such as:
-
-- `siteId`
-- `x`
-- `y`
-- `district`
-
-Competition pressure should be derived from visible rivals using factors such as:
-
-- distance
-- rival strength
-- rival price aggression
-- local density
-
-Acceptance:
-
-- Leasing a visible vacancy creates the store at that exact location.
-- Property competition and weekly demand use the same pressure function.
-- Strong nearby rivals visibly and economically matter.
-- Deterministic replay remains exact.
-
-### Phase 2 — Accounting and valuation normalization
-
-Goal: make long-run company economics internally consistent.
-
-Work:
-
-- replace latest-week valuation with rolling normalized earnings
-- remove cumulative-profit double counting
-- connect credit score to borrowing capacity and borrowing cost
-- review all company/personal/fund transfers
-- exclude donated foundation assets from personal net worth if they are no longer personally owned
-
-Add accounting invariants before changing balance values.
-
-### Phase 3 — Weekly Management Brief
-
-Goal: make causality visible to the player.
-
-Extend simulation results so each store/business/company can expose a breakdown rather than only revenue/cost/units.
-
-Example breakdown categories:
-
-- price effect
-- footfall/location effect
+- weekly revenue and profit snapshots
+- deltas from the prior period
+- causal driver bridge
+- risk flags
+- location/footfall effect
 - competitor pressure
-- advertising effect
-- quality effect
-- brand effect
-- operating-hours effect
-- cannibalization
-- labor/fixed/rent/interest cost
+- advertising contribution
+- event contribution
+- rent burden
 
-Create a weekly brief showing:
+Future additions should extend this explanation layer instead of creating hidden mechanics.
 
-- revenue change
-- profit change
-- top positive drivers
-- top negative drivers
-- risks
-- opportunities
+## Phase 4 — Delayed investment / project system — COMPLETE BASELINE
 
-The brief should teach the game model without exposing raw formulas unnecessarily.
+Major business investments now use a project lifecycle instead of instant stat jumps.
 
-### Phase 4 — Delayed investment / project system
+Current lifecycle:
 
-Goal: make capital allocation and timing meaningful.
+`in_progress → completed`
 
-Replace immediate stat jumps for major investments with projects:
+Cash is committed before the benefit arrives. Quality, brand, efficiency and digital improvements have deterministic completion delays.
 
-`planned → in_progress → completed`
+Future capex, renovation and product-development systems should reuse the same project architecture.
 
-Possible durations:
+## Phase 5 — Management and delegation — COMPLETE BASELINE
 
-- quality improvement: several weeks
-- renovation: several weeks
-- DX: several weeks
-- new product: several weeks
-- large capex: longer
+Implemented store-count management tiers and policy-driven operation.
 
-Cash is committed before the benefit fully arrives.
-
-### Phase 5 — Management and delegation
-
-Goal: change the player's job as the company grows.
-
-Progression target:
+Progression target remains:
 
 - early: owner-operator
 - growth: multi-store operator
@@ -253,96 +154,79 @@ Progression target:
 - late: group CEO
 - endgame: capital allocator
 
-Possible unlocks:
+Current policy presets include variants such as Premium, Growth, Margin, Market Share and Cash Preservation.
 
-- store manager
-- area manager
-- business-unit head
-- COO / policy management
+Standing rule: a larger company should increase decision abstraction, not simply increase repetitive taps.
 
-At scale, replace repetitive store controls with policy controls such as:
+## Phase 6 — Dynamic competitors and contextual events — COMPLETE BASELINE
 
-- Premium Pricing
-- Growth
-- Margin
-- Market Share
-- Cash Preservation
+Implemented deterministic quarterly competitor behavior and contextual external events.
 
-The player should not manually set every store forever.
+Competitor actions include variants such as:
 
-### Phase 6 — Dynamic competitors and contextual events
-
-Goal: make the world react.
-
-Competitor actions may include:
-
-- price changes
+- price cut
+- brand push
 - renovation
-- openings
-- closures
-- brand investment
+- expansion
+- steady operation
 
-External events may include:
+External events include:
 
 - raw-material inflation
 - labor shortage
-- rate increases
 - station redevelopment
-- local demand shifts
 - social-media demand shocks
+- cyber/system disruption
 
-Events should interact with prior player decisions. Avoid pure random punishment.
+Event severity is modified by prior player investment such as efficiency, digital capability and brand strength.
 
-### Phase 7 — Strategy bots and balance simulation
+Standing rule: avoid pure random punishment; prior management decisions should alter the outcome.
 
-Goal: identify dominant strategies instead of balancing by intuition alone.
+## Phase 7 — Strategy bots and balance simulation — COMPLETE BASELINE
 
-Create deterministic player strategies such as:
+Implemented deterministic strategy bots including:
 
+- conservative
 - low-price volume
 - premium
-- advertising-heavy
-- capex-heavy
-- expansion-heavy
-- cash-conservative
-- leveraged
+- advertising
+- efficiency
+- expansion
 - diversification
-- M&A
-- capital allocator
+- leveraged expansion
 
-Measure across many seeds:
+CI measures survival, IPO rate, company value, cash, debt, store count and personal wealth across deterministic seeds.
 
-- survival rate
-- bankruptcy rate
-- time to IPO
-- enterprise value
-- cash
-- leverage
-- store count
-- personal net worth
-- PE unlock rate
-- drawdown
-- long-run save size
-- NaN / Infinity count
+The CI dominant-strategy gate fails if one strategy wins more than 80% of seed comparisons.
 
-Do not force all strategies to have equal outcomes. Give each strategy a distinct risk/return profile.
+Latest calibrated smoke result before merge:
 
-### Phase 8 — Deepen existing endgame systems
+- Premium: 2 wins
+- Advertising: 2 wins
+- Expansion: 2 wins
+- dominant share: 33.3%
 
-Goal: connect existing systems causally before adding more systems.
+This is a regression signal, not a requirement that every strategy remain equally strong.
 
-Priorities:
+## Phase 8 — Deepen existing endgame systems — COMPLETE BASELINE
 
-1. M&A object model
-2. PE underwriting and DD consequences
-3. leverage and debt service
-4. value-creation initiatives
-5. exit mechanics
-6. capital allocation between company, public markets and PE
+### M&A
 
-For PE, the intended chain is:
+Acquisitions now create operating subsidiary objects rather than only incrementing a counter.
 
-`deal sourcing → DD → entry price → leverage → operating performance → initiatives → exit multiple → realized return`
+Subsidiaries carry economic characteristics including revenue, EBITDA/operating performance, debt, growth, enterprise value, management quality, synergy and ownership.
+
+Their operating results flow into consolidated company economics.
+
+### PE
+
+The PE chain now connects:
+
+`deal sourcing → DD → entry multiple → leverage → operating performance → initiatives → debt amortization → exit multiple → realized return`
+
+DD Quality/Risk now survives acquisition and affects post-acquisition economics, leverage, initiative outcomes and downside behavior.
+
+Standing rule: new endgame features should deepen this causal chain before adding unrelated financial modes.
 
 ## Development gates
 
@@ -357,25 +241,34 @@ Before adding a feature, answer:
 7. What deterministic test proves it works?
 8. Does this increase depth, or only add another screen/stat?
 
-If the feature does not connect to the decision → simulation → explanation loop, it should normally be deferred.
+If a feature does not connect to the decision → simulation → explanation loop, it should normally be deferred.
 
-## Immediate priority order
+## Required validation for future work
 
-Until the reliability foundation is complete, avoid adding new business types or financial products.
+Every meaningful gameplay change should preserve or extend:
 
-Recommended sequence:
+1. deterministic simulation tests
+2. save migration / recovery tests
+3. accounting and finite-state invariants
+4. city-economy consistency where relevant
+5. strategy-bot balance smoke where balance is affected
+6. iPhone WebKit smoke for user-facing changes
+7. 100-year simulation for state-growth or economy changes
 
-1. `test/simulation-foundation`
-2. `refactor/city-runtime-cleanup`
-3. `fix/city-single-source-of-truth`
-4. `feat/save-v2`
-5. accounting / valuation normalization
-6. Weekly Management Brief
-7. delayed projects
-8. delegation
-9. world dynamics
-10. strategy-bot balance validation
-11. deepen M&A / PE
+## Next product-development frontier
+
+The original roadmap is complete at baseline level. Future work should focus on **depth and presentation quality**, not a new wave of disconnected systems.
+
+Highest-value follow-up areas:
+
+1. richer Management Brief attribution and charts
+2. stronger manager/area-manager/COO UX rather than only policy presets
+3. deeper competitor memory and strategic response
+4. richer project/capex pipeline using the existing delayed-project engine
+5. acquisition integration, synergy and divestiture choices
+6. PE fund-level LP economics, fund sequencing and portfolio construction
+7. longer-horizon balance calibration across more seeds/player archetypes
+8. replacing remaining prompt/alert flows with native mobile UI where practical
 
 ## Standing design rule
 
