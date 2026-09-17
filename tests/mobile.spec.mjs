@@ -1,6 +1,6 @@
 import {test,expect} from '@playwright/test';
 
-test('iPhone WebKit can found a company, review Phase 9 management data, advance time and inspect the city',async({page})=>{
+test('iPhone WebKit covers Phase 9 management and Phase 10 capital allocator surfaces',async({page})=>{
   const errors=[];page.on('pageerror',e=>errors.push(String(e)));
   await page.goto('./');
   await expect(page).toHaveTitle('CAPITAL ASCENT');
@@ -19,6 +19,10 @@ test('iPhone WebKit can found a company, review Phase 9 management data, advance
   await expect(page.locator('.city-world-screen')).toBeVisible();
   await expect(page.locator('.rival-pin').first()).toBeVisible();
   await expect(page.locator('.site-pin').first()).toBeVisible();
+  await page.locator('nav [data-tab="market"]').click();
+  await expect(page.getByText('Capital Allocation Office')).toBeVisible();
+  await page.locator('nav [data-tab="pe"]').click();
+  await expect(page.getByText('Phase 10 — Fund Economics')).toBeVisible();
   const overflow=await page.evaluate(()=>document.documentElement.scrollWidth-window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(2);
   expect(errors).toEqual([]);
