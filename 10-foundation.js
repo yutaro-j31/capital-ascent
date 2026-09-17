@@ -19,7 +19,8 @@ function ensureAdvancedState(s){
   s.world.events=Array.isArray(s.world.events)?s.world.events:[];
   s.company=s.company||{};
   s.company.subsidiaryPortfolio=Array.isArray(s.company.subsidiaryPortfolio)?s.company.subsidiaryPortfolio:[];
-  s.company.subsidiaries=s.company.subsidiaryPortfolio.length||Number(s.company.subsidiaries||0);
+  const heldSubsidiaries=s.company.subsidiaryPortfolio.filter(x=>x.status!=='sold').length;
+  s.company.subsidiaries=s.company.subsidiaryPortfolio.length?heldSubsidiaries:Number(s.company.subsidiaries||0);
   s.pe=s.pe||{};
   s.pe.initiatives=Array.isArray(s.pe.initiatives)?s.pe.initiatives:[];
   s.ui=s.ui||{};
