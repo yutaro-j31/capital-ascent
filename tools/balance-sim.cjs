@@ -22,9 +22,17 @@ function act(r,strategy,turn){
   }else if(strategy==='expansion'){
     if(turn%4===0)a.eval(`if(state.company.cash>8000000)openStore('ramen');`);
   }else if(strategy==='diversified'){
-    const order=['conveni','realEstateAgency','productVentures','gym'];const id=order[Math.floor(turn/8)%order.length];
-    if(turn%8===0)a.eval(`if(state.company.cash>12000000&&!state.company.businesses['${id}'])addBusiness('${id}');`);
-    if(turn%8===4)a.eval(`if(state.company.cash>10000000&&state.company.businesses.conveni&&state.company.stores.filter(x=>x.businessID==='conveni').length<3)openStore('conveni');`);
+    if(turn%8===0){
+      a.eval(`
+        if(!state.company.businesses.conveni&&state.company.cash>14000000)addBusiness('conveni');
+        if(state.company.businesses.conveni&&state.company.stores.filter(x=>x.businessID==='conveni').length<2&&state.company.cash>11000000)openStore('conveni');
+        if(${turn}>=8&&!state.company.businesses.realEstateAgency&&state.company.cash>24000000)addBusiness('realEstateAgency');
+        if(state.company.businesses.realEstateAgency&&state.company.stores.filter(x=>x.businessID==='realEstateAgency').length<1&&state.company.cash>18000000)openStore('realEstateAgency');
+        if(${turn}>=16&&!state.company.businesses.gym&&state.company.cash>40000000)addBusiness('gym');
+        if(state.company.businesses.gym&&state.company.stores.filter(x=>x.businessID==='gym').length<1&&state.company.cash>35000000)openStore('gym');
+        if(${turn}>=24&&!state.company.businesses.productVentures&&state.company.cash>70000000)addBusiness('productVentures');
+      `);
+    }
   }else if(strategy==='leveraged'){
     if(turn%10===0)a.eval(`if(state.company.debt<companyValue(state)*.18&&state.company.credit>35)borrowCompany();`);
     if(turn%4===0)a.eval(`if(state.company.cash>8000000)openStore('ramen');`);
