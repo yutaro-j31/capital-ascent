@@ -33,6 +33,9 @@ jobs:
       - name: Strategy balance smoke
         if: steps.detect.outputs.run == 'true' && hashFiles('tools/balance-sim.cjs') != ''
         run: node tools/balance-sim.cjs --ci
+      - name: Phase 11 long-horizon cohort
+        if: steps.detect.outputs.run == 'true' && hashFiles('tools/phase11-cohort.cjs') != ''
+        run: node tools/phase11-cohort.cjs --ci
       - name: No simulation suite yet
         if: steps.detect.outputs.run != 'true'
         run: echo "Simulation suite not present on this revision; bootstrap workflow is healthy."
