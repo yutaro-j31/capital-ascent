@@ -116,3 +116,38 @@ test('management policy automates business controls after delegation unlock',()=
   const before=r.api.get().company.businesses.ramen.price;r.api.policy('ramen','premium');r.api.simulate(2);
   assert.ok(r.api.get().company.businesses.ramen.price>before);
 });
+
+test('Phase 9 executive brief contains operating review, movers and deterministic outlook',()=>{
+  const r=createRuntime();r.api.fresh('EXEC BRIEF','ramen','東京');r.api.eval('state.company.cash=1000000000;');
+  r.api.simulate(3);const b=plain(r.api.get().history.briefs.at(-1));
+  assert.ok(b.executive);assert.ok(Number.isFinite(b.executive.operatingMargin));assert.ok(Number.isFinite(b.executive.cashRunwayWeeks));
+  assert.ok(Array.isArray(b.storeMovers));assert.ok(Array.isArray(b.decisions));assert.ok(b.decisions.length>0);
+  assert.ok(b.outlook&&Number.isFinite(b.outlook.revenueLow)&&Number.isFinite(b.outlook.revenueHigh));
+});
+
+test('Phase 9 delegated manager execution is deterministic and autonomy changes convergence',()=>{
+  const setup=r=>{r.api.fresh('MANAGER DEPTH','ramen','東京');r.api.eval(`state.company.cash=1000000000;for(let i=0;i<2;i++)state.company.stores.push({id:'m_'+i,businessID:'ramen',region:'東京',name:'追加'+i,traffic:1,rent:50000,deposit:0,priceOverride:null,operatingHours:12,members:0,capacity:0,pipeline:null,lastRevenue:0,lastProfit:0,lastUnits:0,property:{district:'渋谷',x:32+i,y:40}});`);r.api.policy('ramen','premium');};
+  const a=createRuntime(),b=createRuntime(),low=createRuntime();setup(a);setup(b);setup(low);a.api.autonomy('ramen','high');b.api.autonomy('ramen','high');low.api.autonomy('ramen','low');
+  a.api.simulate(4);b.api.simulate(4);low.api.simulate(4);
+  assert.equal(a.api.get().company.businesses.ramen.price,b.api.get().company.businesses.ramen.price);
+  assert.equal(plain(a.api.get().management.businessUnits.ramen).managerQuality,plain(b.api.get().management.businessUnits.ramen).managerQuality);
+  assert.ok(a.api.get().company.businesses.ramen.price>=low.api.get().company.businesses.ramen.price);
+});
+
+test('Phase 9 competitors remember and react to player strategy only at quarter boundaries',()=>{
+  const r=createRuntime();r.api.fresh('RIVAL MEMORY','ramen','東京');
+  r.api.eval('state.company.cash=1000000000;state.company.businesses.ramen.price=PILLARS.ramen.price*.90;');
+  const before=plain(r.api.get().world.competitorMemory);assert.equal(Object.keys(before).length,0);
+  r.api.simulate(12);assert.equal(Object.keys(plain(r.api.get().world.competitorMemory)).length,0);
+  r.api.simulate(1);const memory=plain(r.api.get().world.competitorMemory);assert.ok(Object.keys(memory).length>0);
+  const rows=plain(r.api.competitors('ramen','東京'));assert.ok(rows.some(x=>x.playerSignal==='price_attack'&&x.strategicPosture));
+  const snap=JSON.stringify(memory);r.api.competitors('ramen','東京');r.api.competitors('ramen','東京');assert.equal(JSON.stringify(plain(r.api.get().world.competitorMemory)),snap);
+});
+
+test('Phase 9 capex is constrained by management capacity and has delayed completion',()=>{
+  const r=createRuntime();r.api.fresh('CAPEX DEPTH','ramen','東京');r.api.eval('state.company.cash=1000000000;');
+  assert.equal(r.api.projectCapacity(),1);
+  assert.equal(r.api.capex('ramen','renovation'),true);assert.equal(r.api.capex('ramen','automation'),false);
+  r.api.simulate(7);let s=plain(r.api.get());const p=s.projects.find(x=>x.scope==='capex');const preCompletionBrand=s.company.businesses.ramen.brand;assert.equal(p.status,'in_progress');
+  r.api.simulate(1);s=plain(r.api.get());assert.ok(s.company.businesses.ramen.brand>preCompletionBrand);assert.equal(s.projects.find(x=>x.scope==='capex').status,'completed');
+});
