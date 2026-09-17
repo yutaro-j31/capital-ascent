@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const RUNTIME_FILES=[
   '01-core.js','02-operations.js','03-markets-pe.js','04-finance.js','05-ui-core.js','06-ui-extra.js',
-  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js'
+  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js','17-phase10-capital-allocator.js'
 ];
 
 function createStorage(){
@@ -53,8 +53,10 @@ function createRuntime(){
       autonomy:(id,level)=>setManagementAutonomy(id,level),reviewCadence:(id,c)=>setManagementReviewCadence(id,c),
       capex:(id,kind,cost)=>scheduleCapexProject(id,kind,cost),projectCapacity:()=>projectCapacity(state),
       competitors:(id,region)=>cityCompetitors(id,region),signal:(id,region)=>playerSignalFor(state,id,region),
-      acquireSub:()=>acquireSubsidiary(),sellSub:()=>sellSubsidiary(),
+      acquireSub:()=>acquireSubsidiary(),sellSub:()=>sellSubsidiary(),sellSubById:id=>sellSubsidiaryById(id),integrateSub:(id,mode)=>startSubsidiaryIntegration(id,mode),
       dd:id=>ddDeal(id),acquirePe:id=>acquireDeal(id),improvePe:(id,k)=>improvePortfolio(id,k),exitPe:id=>exitPortfolio(id),
+      raiseFund:()=>raiseFund(),fundMetrics:id=>fundMetrics(state.pe.funds.find(f=>f.id===id)||currentFund(),state),fundGate:()=>nextFundEligibility(state),callFund:(id,amt,reason)=>callFundCapital(state.pe.funds.find(f=>f.id===id),amt,reason),
+      allocation:()=>capitalAllocationSnapshot(state),dividend:()=>paySpecialDividend(),buyback:()=>executeBuyback(),
       compact:()=>compactStateForSave(state),exportText:()=>exportSaveText(),
       eval:(code)=>eval(code)
     };
