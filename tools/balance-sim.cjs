@@ -13,9 +13,9 @@ function act(r,strategy,turn){
     a.eval(`state.company.businesses.ramen.price=Math.round(PILLARS.ramen.price*1.16);state.company.businesses.ramen.adSpend=60000;`);
     if(turn%6===0&&a.get().company.cash>5000000)a.invest('ramen','quality',500000);
   }else if(strategy==='advertising'){
-    if(turn%6===0)a.eval(`if(state.company.cash>9000000&&state.company.stores.filter(x=>x.businessID==='ramen').length<5)openStore('ramen');`);
-    a.eval(`{const n=state.company.stores.filter(x=>x.businessID==='ramen').length;state.company.businesses.ramen.adSpend=Math.min(180000,50000+n*25000);}`);
-    if(turn%8===0&&a.get().company.cash>6000000)a.invest('ramen','brand',500000);
+    if(turn%8===0)a.eval(`if(state.company.cash>12000000&&state.company.stores.filter(x=>x.businessID==='ramen').length<3)openStore('ramen');`);
+    a.eval(`{const n=state.company.stores.filter(x=>x.businessID==='ramen').length;state.company.businesses.ramen.adSpend=Math.min(120000,40000+n*20000);}`);
+    if(turn%10===0&&a.get().company.cash>8000000)a.invest('ramen','brand',500000);
   }else if(strategy==='efficiency'){
     a.eval(`state.company.businesses.ramen.adSpend=20000;`);
     if(turn%6===0&&a.get().company.cash>5000000)a.invest('ramen',turn%12===0?'digital':'efficiency',500000);
@@ -24,13 +24,20 @@ function act(r,strategy,turn){
   }else if(strategy==='diversified'){
     if(turn%8===0){
       a.eval(`
-        if(!state.company.businesses.conveni&&state.company.cash>14000000)addBusiness('conveni');
-        if(state.company.businesses.conveni&&state.company.stores.filter(x=>x.businessID==='conveni').length<2&&state.company.cash>11000000)openStore('conveni');
-        if(${turn}>=8&&!state.company.businesses.realEstateAgency&&state.company.cash>24000000)addBusiness('realEstateAgency');
-        if(state.company.businesses.realEstateAgency&&state.company.stores.filter(x=>x.businessID==='realEstateAgency').length<1&&state.company.cash>18000000)openStore('realEstateAgency');
-        if(${turn}>=16&&!state.company.businesses.gym&&state.company.cash>40000000)addBusiness('gym');
-        if(state.company.businesses.gym&&state.company.stores.filter(x=>x.businessID==='gym').length<1&&state.company.cash>35000000)openStore('gym');
-        if(${turn}>=24&&!state.company.businesses.productVentures&&state.company.cash>70000000)addBusiness('productVentures');
+        if(!state.company.businesses.conveni&&companyValue(state)>80000000&&state.company.cash>30000000){
+          addBusiness('conveni');
+          if(state.company.cash>25000000)openStore('conveni');
+        }else if(${turn}>=16&&!state.company.businesses.realEstateAgency&&companyValue(state)>120000000&&state.company.cash>50000000){
+          addBusiness('realEstateAgency');
+          if(state.company.cash>40000000)openStore('realEstateAgency');
+        }else if(${turn}>=24&&!state.company.businesses.gym&&companyValue(state)>180000000&&state.company.cash>80000000){
+          addBusiness('gym');
+          if(state.company.cash>65000000)openStore('gym');
+        }else if(${turn}>=32&&!state.company.businesses.productVentures&&companyValue(state)>250000000&&state.company.cash>120000000){
+          addBusiness('productVentures');
+        }else if(state.company.businesses.conveni&&state.company.stores.filter(x=>x.businessID==='conveni').length<2&&state.company.cash>35000000){
+          openStore('conveni');
+        }
       `);
     }
   }else if(strategy==='leveraged'){
