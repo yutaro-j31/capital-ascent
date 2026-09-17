@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const RUNTIME_FILES=[
   '01-core.js','02-operations.js','03-markets-pe.js','04-finance.js','05-ui-core.js','06-ui-extra.js',
-  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','14-ui-roadmap.js'
+  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js'
 ];
 
 function createStorage(){
