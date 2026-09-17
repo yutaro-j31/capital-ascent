@@ -5,7 +5,8 @@
   "scripts": {
     "test": "node --test tests/*.test.cjs",
     "balance": "node tools/balance-sim.cjs",
-    "test:mobile": "playwright test"
+    "test:mobile": "playwright test",
+    "cohort": "node tools/phase11-cohort.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0"
