@@ -34,7 +34,11 @@ function allocatorAction(r,turn){
     a.raiseFund();
     return;
   }
-  const open=s.pe.deals.find(function(d){return d.status==='open';});
+  const activeFund=s.pe.funds.slice(-1)[0];
+  const gpRemaining=Math.max(0,(activeFund.gpCommit||0)-(activeFund.gpContributed||0));
+  const liquidityNeed=Math.min(gpRemaining,Math.max(15000000,(activeFund.commitments||0)*.012));
+  if(s.company.public&&s.personal.cash<liquidityNeed&&turn%2===0)a.dividend();
+  const open=a.get().pe.deals.find(function(d){return d.status==='open';});
   if(open){
     if(!open.dd)a.dd(open.id);
     const d=a.get().pe.deals.find(function(x){return x.id===open.id;});
@@ -97,10 +101,14 @@ function runActor(actor,seedIndex,maxWeeks){
 }
 
 function summarize(rows){
-  const out={};
+  const out={checkpoints:{},byActor:{}};
   CHECKPOINTS.forEach(function(w){
     const xs=rows.map(function(r){return r.snapshots[w];}),n=Math.max(1,xs.length),avg=function(k){return xs.reduce(function(a,x){return a+(Number(x[k])||0);},0)/n;};
-    out[w]={runs:xs.length,survivalRate:xs.filter(function(x){return x.survived;}).length/n,ipoRate:xs.filter(function(x){return x.public;}).length/n,peUnlockRate:xs.filter(function(x){return x.peUnlocked;}).length/n,fund1Rate:xs.filter(function(x){return x.highestFund>=1;}).length/n,fund2Rate:xs.filter(function(x){return x.highestFund>=2;}).length/n,peExitRate:xs.filter(function(x){return x.peExits>0;}).length/n,avgCompanyValue:avg('companyValue'),avgPersonalNetWorth:avg('personalNetWorth')};
+    out.checkpoints[w]={runs:xs.length,survivalRate:xs.filter(function(x){return x.survived;}).length/n,ipoRate:xs.filter(function(x){return x.public;}).length/n,peUnlockRate:xs.filter(function(x){return x.peUnlocked;}).length/n,fund1Rate:xs.filter(function(x){return x.highestFund>=1;}).length/n,fund2Rate:xs.filter(function(x){return x.highestFund>=2;}).length/n,peExitRate:xs.filter(function(x){return x.peExits>0;}).length/n,avgCompanyValue:avg('companyValue'),avgPersonalNetWorth:avg('personalNetWorth')};
+  });
+  ACTORS.forEach(function(actor){
+    const xs=rows.filter(function(r){return r.actor===actor;});
+    out.byActor[actor]=xs.map(function(r){return {seed:r.seedIndex,final:r.final,milestones:r.final.milestones};});
   });
   return out;
 }
@@ -118,6 +126,8 @@ if(require.main===module){
   if(bad){console.error('PHASE11 COHORT FAIL: non-finite long-horizon metric');process.exitCode=1;}
   const allocator=result.rows.filter(function(r){return r.actor==='allocator';});
   if(allocator.length&&!allocator.some(function(r){return r.final.peUnlocked;})){console.error('PHASE11 COHORT FAIL: allocator archetype never unlocks PE');process.exitCode=1;}
+  if(allocator.length&&!allocator.some(function(r){return r.final.highestFund>=1&&r.final.peDeals>0&&r.final.peExits>0;})){console.error('PHASE11 COHORT FAIL: allocator cannot complete the Fund I investment-realization loop');process.exitCode=1;}
+  if(allocator.length&&!allocator.some(function(r){return Number.isFinite(r.final.milestones.fund2)&&r.final.milestones.fund2<=1560;})){console.error('PHASE11 COHORT FAIL: allocator cannot reach Fund II within 30 years');process.exitCode=1;}
 }
 
 module.exports={ACTORS,CHECKPOINTS,runActor,runCohort,summarize};
