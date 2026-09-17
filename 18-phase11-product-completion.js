@@ -27,7 +27,24 @@ ensureAdvancedState=ensurePhase11State;
 // Phase 11 progression calibration: institutional PE GPs typically commit a small
 // minority of fund capital. Keep the track-record benefit, but avoid the legacy
 // 2–20% range that made Fund I unreachable after a credible founder Exit.
-gpRatio=function(score){return .04-.02*Math.pow(clamp(Number(score)||0,0,100)/100,.7);};
+gpRatio=function(score){return .025-.01*Math.pow(clamp(Number(score)||0,0,100)/100,.7);};
+
+const _p11GeneratePeDeals=generatePeDeals;
+generatePeDeals=function(s){
+  const before=new Set((s.pe.deals||[]).map(function(d){return d.id;}));
+  _p11GeneratePeDeals(s);
+  const active=(s.pe.funds||[]).filter(function(f){return s.week<=f.investmentEndWeek;}).slice(-1)[0];
+  if(!active)return;
+  (s.pe.deals||[]).forEach(function(d){
+    if(before.has(d.id)||d.status!=='open')return;
+    const target=(active.commitments||active.size)/Math.max(1,active.slots)*1.9*(.85+u01(d.id+':phase11-ticket')*.30);
+    if(d.value<target){
+      d.value=target;
+      d.ebitda=d.value/(6.5+u01(d.id+'m')*3.5);
+      d.entryMultiple=d.value/Math.max(1,d.ebitda);
+    }
+  });
+};
 
 function phase11FundNumber(s){return (s.pe&&s.pe.funds||[]).reduce(function(m,f){return Math.max(m,Number(f.number)||0);},0);}
 function phase11HasPeExit(s){return (s.pe&&s.pe.portfolio||[]).some(function(p){return p.status==='exited';});}
