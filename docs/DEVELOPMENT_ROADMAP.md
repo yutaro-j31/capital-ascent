@@ -2,43 +2,47 @@
 
 Last audited: 2026-09-17
 
-This document is the standing development roadmap and design contract for CAPITAL ASCENT. Always verify the actual repository state before acting on it.
+This is the standing product and engineering roadmap for CAPITAL ASCENT. Before substantial work, always verify the actual repository state, `AGENTS.md`, this roadmap, relevant implementation files, tests and CI. Repository state overrides stale chat summaries.
 
 ## Current frontier
 
-- Phase 0–8: COMPLETE baseline
-- Phase 9: COMPLETE — management depth
-- Phase 10: IN IMPLEMENTATION on PR #6 — CEO → capital allocator endgame
-- Phase 11: PLANNED — long-horizon balance, progression, tutorial and UX completion
-- Phase 12: PLANNED — release candidate / final QA / production completion
+- **Phase 0–8: COMPLETE** — reliability, city/economy, accounting, explainability, delayed investment, delegation, competitors, balance harness, M&A/PE causal baseline.
+- **Phase 9: COMPLETE** — executive operating review, management organization, competitor memory and CAPEX portfolio.
+- **Phase 10: COMPLETE** — CEO → capital allocator endgame, including fund-level LP economics, portfolio construction, PMI and public-company capital allocation.
+- **Phase 11: NEXT** — long-horizon balance, progression clarity, tutorial and mobile UX completion.
+- **Phase 12: PLANNED** — release candidate, final QA and production-completion gate.
 
-The game should continue to prefer **causal depth over feature breadth**.
+The product rule remains:
+
+**Prefer causal depth over feature breadth.**
 
 Core loop:
 
 `observe → decide → advance time → simulate → explain → decide again`
 
-As the company grows, the player's job should become more abstract: owner-operator → multi-store operator → business-unit CEO → group CEO → capital allocator.
+Player-role progression:
+
+`owner-operator → multi-store operator → business-unit CEO → group CEO → capital allocator`
 
 ---
 
 # Standing engineering gates
 
-Every substantial gameplay change must preserve:
+Every substantial gameplay change must preserve or extend:
 
 1. deterministic simulation
-2. company / personal / PE-fund cash separation
+2. explicit company / personal / PE-fund money separation
 3. save compatibility and migration
-4. accounting invariants
+4. accounting and ownership invariants
 5. no NaN / Infinity
 6. bounded long-run state and save size
 7. 10-year deterministic replay
 8. 100-year / 5,200-week simulation
 9. strategy-bot balance smoke when economics change
 10. iPhone WebKit smoke for user-facing changes
-11. published Pages smoke for release behavior
+11. GitHub Pages / published smoke for release behavior
 
-Do not weaken tests to make a feature pass.
+Do not weaken tests merely to make a change pass.
 
 ---
 
@@ -46,19 +50,20 @@ Do not weaken tests to make a feature pass.
 
 Implemented:
 
-- deterministic Node VM harness
+- deterministic Node VM test harness
 - Game CI
-- 10-year replay
-- 100-year simulation
+- 10-year deterministic replay
+- 100-year / 5,200-week simulation
 - finite-state / NaN / Infinity checks
 - save-size bound
-- Save Schema V2 while preserving `capital_ascent_v1`
-- rolling backups and recovery
+- Save Schema V2 while preserving public key `capital_ascent_v1`
+- additive migration
+- rolling backups and corrupted-primary recovery
 - export / import
 - iPhone WebKit smoke
 - published Pages smoke
 
-Standing rule: reliability is part of the game, not cleanup work.
+Standing rule: reliability is part of the game design, not post-release cleanup.
 
 ---
 
@@ -68,11 +73,11 @@ Implemented:
 
 - stable site identity
 - persistent coordinates and district
-- visible rivals and weekly economics using the same competition model
+- visible rivals and weekly economics using the same competition inputs
 - property competition score linked to simulation
-- leased-property coordinates preserved into the resulting store
+- leased property coordinates preserved into the resulting store
 
-Standing rule: the map is an economic board, not decorative UI.
+Standing rule: the city is an economic board, not decorative UI.
 
 ---
 
@@ -98,13 +103,13 @@ Valuation contract:
 
 Implemented:
 
-- weekly revenue and profit snapshots
+- weekly revenue / profit snapshots
 - prior-period deltas
 - causal driver bridge
-- competition / footfall / advertising / events / rent attribution
+- competition, footfall, advertising, events and rent attribution
 - risk flags
 
-Standing rule: if a mechanic changes results, the player should be able to understand why.
+Standing rule: if a mechanic materially changes results, the player should be able to understand why.
 
 ---
 
@@ -115,15 +120,15 @@ Implemented:
 - upfront cash commitment
 - delayed quality / brand / efficiency / digital effects
 - project lifecycle
-- recent project history kept bounded
+- bounded project history
 
-Standing rule: major investment should create a forecasting and liquidity decision, not an instant stat purchase.
+Standing rule: major investment creates a forecasting and liquidity decision rather than an instant stat purchase.
 
 ---
 
 # Phase 5 — Management and delegation — COMPLETE BASELINE
 
-Progression:
+Management ladder:
 
 - Owner Operator
 - Store Manager
@@ -131,9 +136,9 @@ Progression:
 - Business Unit Head
 - COO
 
-Implemented policy presets include Premium, Growth, Margin, Market Share and Cash Preservation.
+Policy presets include Premium, Growth, Margin, Market Share and Cash Preservation.
 
-Standing rule: a larger company should increase decision abstraction rather than repetitive taps.
+Standing rule: company growth should increase decision abstraction, not repetitive taps.
 
 ---
 
@@ -147,13 +152,7 @@ Competitor actions include:
 - expansion
 - steady operation
 
-External events include:
-
-- raw-material inflation
-- labor shortage
-- station redevelopment
-- social-media demand shocks
-- cyber / system disruption
+External events include raw-material inflation, labor shortage, station redevelopment, social-media demand shocks and cyber/system disruption.
 
 Player preparation changes event impact.
 
@@ -161,18 +160,9 @@ Player preparation changes event impact.
 
 # Phase 7 — Strategy bots and balance simulation — COMPLETE BASELINE
 
-Implemented strategy archetypes include:
+Implemented strategy archetypes include conservative, low-price volume, premium, advertising, efficiency, expansion, diversification and leveraged expansion.
 
-- conservative
-- low-price volume
-- premium
-- advertising
-- efficiency
-- expansion
-- diversification
-- leveraged expansion
-
-CI measures survival, IPO rate, company value, cash, debt, stores and personal wealth.
+CI measures survival, IPO rate, company value, cash, debt, store count and personal wealth.
 
 Standing dominant-strategy gate: one strategy winning more than 80% of deterministic seed comparisons fails the smoke gate.
 
@@ -189,22 +179,11 @@ Latest Phase 9 calibration before Phase 10 work:
 
 ## Corporate M&A
 
-Acquisitions create operating subsidiary objects with:
-
-- revenue
-- EBITDA
-- debt
-- growth
-- enterprise value
-- management quality
-- synergy
-- ownership
-
-Subsidiary economics consolidate into company results.
+Acquisitions create operating subsidiary objects with revenue, EBITDA, debt, growth, enterprise value, management quality, synergy and ownership. Subsidiary economics consolidate into company results.
 
 ## PE
 
-Authoritative chain:
+Authoritative deal chain:
 
 `deal sourcing → DD → entry multiple → leverage → operating performance → initiatives → debt amortization → exit multiple → realized return`
 
@@ -214,11 +193,11 @@ DD Quality / Risk affect leverage, operating results, initiative outcomes and do
 
 # Phase 9 — Management depth — COMPLETE
 
-Phase 9 turns baseline management systems into a true operating-review layer.
-
-Implemented:
+Phase 9 turned the baseline management systems into an operating-review layer.
 
 ## Executive Management Brief
+
+Implemented:
 
 - 4-week revenue / profit trend
 - operating margin
@@ -232,29 +211,22 @@ Implemented:
 
 ## Management Organization
 
+Implemented:
+
 - persistent manager objects
-- manager quality
-- tenure
+- manager quality and tenure
 - Low / Medium / High autonomy
 - Weekly / Monthly / Quarterly review cadence
 - discretionary budget ceiling
-- deterministic policy execution variance
+- deterministic policy-execution variance
 
 ## Competitor strategic memory
 
-Competitors remember and respond to player signals such as:
-
-- price attack
-- ad blitz
-- expansion
-- premium positioning
-- weakness
-
-State changes occur in simulation at quarter boundaries, not during rendering.
+Competitors remember and respond to player signals such as price attack, ad blitz, expansion, premium positioning and weakness. State changes occur in simulation at quarter boundaries, not during rendering.
 
 ## Capital Program
 
-Implemented CAPEX types:
+CAPEX types:
 
 - Renovation
 - Capacity Expansion
@@ -263,17 +235,11 @@ Implemented CAPEX types:
 
 Projects have upfront cost, delayed completion, deterministic execution risk and management-capacity constraints.
 
-Verification added:
-
-- Phase 9 operating-review tests
-- manager/autonomy determinism
-- competitor-memory quarter-boundary gate
-- CAPEX capacity / delayed completion gate
-- iPhone WebKit coverage
+Phase 9 verification includes operating-review tests, manager/autonomy determinism, competitor-memory quarter-boundary tests, CAPEX delayed-effect tests and iPhone WebKit coverage.
 
 ---
 
-# Phase 10 — CEO → Capital Allocator — IN IMPLEMENTATION / PR #6
+# Phase 10 — CEO → Capital Allocator — COMPLETE
 
 Detailed contract: `docs/PHASE10_CAPITAL_ALLOCATOR.md`
 
@@ -281,13 +247,14 @@ Phase 10 completes the late-game transition from operating-company CEO to alloca
 
 ## 10.1 PE fund-level economics
 
-Target / implemented on PR #6:
+Implemented fund state and economics:
 
-- commitments
+- total commitments
 - GP commitment
 - LP commitment
 - paid-in / called capital
 - uncalled commitment
+- GP and LP contribution tracking
 - deterministic capital calls
 - management fees
 - GP management-company cash
@@ -297,139 +264,143 @@ Target / implemented on PR #6:
 - TVPI
 - deployment
 - reserve ratio
+- preferred return
 - carry
 - GP distributions
 
-Fund I begins with a partial first-close call instead of having the entire commitment as cash on day one.
+Fund I uses a partial first-close capital call instead of receiving the full commitment as cash on day one.
 
-Standing accounting rule: LP contributions stay in the PE-fund bucket. They must never become company or personal cash.
+Accounting contract:
+
+**LP contributions remain in the PE-fund bucket. They never become company cash or personal cash.**
 
 ## 10.2 Fund sequencing
 
-Baseline next-fund gate:
+Next-fund gate:
 
 - DPI >= 1.20x
 - deployment >= 80%
 - LP Trust >= 45
 
-Successor fund size responds to prior TVPI and LP trust.
+Successor fund size responds to prior TVPI and LP Trust, so fundraising is a consequence of realized investment performance.
 
 ## 10.3 Portfolio construction / Investment Committee
 
-Baseline controls:
+Implemented controls:
 
-- single deal <= 45% of commitments
-- sector concentration <= 60% after the first investment
-- existing portfolio-slot limits
-- acquisition liquidity can trigger capital calls
+- single deal <= 45% of fund commitments
+- after the first investment, one sector <= 60% of invested equity
+- portfolio-slot limits
+- acquisition liquidity can trigger a capital call
+- Deal Book surfaces IC constraints
 
-The game should make the player choose a portfolio, not only a collection of individually attractive deals.
+The player must construct a portfolio rather than merely collect individually attractive deals.
 
-## 10.4 PE waterfall / realization
+## 10.4 PE realization and GP economics
 
-Exit should connect:
+Exit now connects:
 
-`equity proceeds → distributions → hurdle → carry → GP economics → DPI/TVPI → fundraising`
+`equity proceeds → fund distribution → preferred-return hurdle → carry → GP economics → DPI / TVPI → next-fund eligibility`
 
-This turns exit quality into the input for the next fund rather than an isolated score.
+Management fees accumulate in a separate GP management-company bucket and transfer to personal cash only through an explicit distribution action.
 
 ## 10.5 Corporate M&A / PMI
 
-Integration choices:
+Integration modes implemented in the Phase 10 engine:
 
 - Stand-alone
 - Synergy Capture
 - Turnaround
 - Full Integration
 
-PMI should:
+PMI:
 
-- cost company cash up front
-- take time
-- create temporary integration drag
-- carry deterministic execution risk
-- change synergy / quality / margin / growth after completion
+- commits company cash up front
+- takes time
+- creates temporary integration drag
+- has deterministic execution risk
+- changes synergy / management quality / margin / growth after completion
 
-Subsidiaries should be individually divestable.
+Subsidiaries can be divested individually.
 
 ## 10.6 Capital Allocation Office
 
-Group-CEO view should expose:
-
-- company cash
-- debt capacity
-- active projects
-- subsidiaries
-- M&A
-- shareholder returns
+Group-CEO view exposes company cash, debt capacity, active projects, subsidiaries, M&A and shareholder returns.
 
 For public companies:
 
-- special dividends reduce full company cash while only founder ownership share enters personal cash
-- buybacks reduce company cash and public float, mechanically increasing founder ownership
+- special dividends reduce full company cash while only the founder-owned portion enters personal cash
+- buybacks reduce company cash and public float, mechanically increasing founder ownership when founder shares are retained
 
-### Phase 10 completion gate
+## Phase 10 verification
 
-Phase 10 is complete only when:
+PR #6 passed the Phase 10 completion gates on its final implementation head before the completion-status documentation update:
 
-1. focused fund accounting tests pass
-2. capital calls never exceed commitments
-3. company / personal / fund money remains separated
-4. DPI / TVPI / NAV / deployment remain finite
-5. next-fund gate is enforced
-6. PE exit updates distribution and GP economics
-7. PMI is delayed and deterministic
-8. dividend / buyback accounting is tested
-9. 10-year replay remains deterministic
-10. 100-year simulation remains finite and bounded
-11. strategy balance smoke remains inside standing gate
-12. iPhone WebKit exposes Phase 10 UI without errors / horizontal overflow
+- focused fund-accounting tests: PASS
+- existing simulation / invariant suite: PASS
+- 10-year deterministic replay: PASS
+- 100-year / 5,200-week finite-state and save-size gate: PASS
+- strategy balance smoke: PASS
+- iPhone WebKit Phase 10 surface smoke: PASS
+
+The final documentation-only head must also remain green before merge.
 
 ---
 
-# Phase 11 — Long-horizon game and UX completion — PLANNED
+# Phase 11 — Long-horizon game and UX completion — NEXT
 
-Phase 11 is not about adding another finance mode. It turns the existing game into a complete long-form product.
+Phase 11 turns the mechanically complete game into a complete long-form product. It should not add another disconnected finance mode.
 
-Planned work:
+## 11.1 Long-horizon balance
 
-## Balance / progression
+Expand automated validation across more deterministic seeds and player archetypes.
 
-- 10-year, 30-year and 100-year calibration across more seeds
-- multiple player archetypes
-- bankruptcy and recovery rates
+Measure:
+
+- survival / bankruptcy distribution
 - IPO timing distribution
+- company-sale timing
 - Fund I / II / III reach rates
-- M&A and PE return distributions
-- capital-allocation strategy comparisons
-- difficulty presets if evidence supports them
+- PE DPI / TVPI / MOIC distribution
+- M&A success and divestiture outcomes
+- company / personal / fund wealth distribution
+- capital-allocation strategy performance
+- progression dead zones
 
-## Progression clarity
+Run 10-year, 30-year and 100-year cohorts. Difficulty presets should only be added if the evidence shows they improve the progression curve.
 
-- clearer milestones from founder → CEO → allocator
-- tutorial / first-run explanation
-- unlock explanation
-- decision-support hints without solving choices for the player
+## 11.2 Progression clarity
 
-## Mobile UX completion
+Complete the player journey from founder to capital allocator:
 
-- replace remaining prompt / alert heavy flows with native sheets / controls
-- reduce deep scrolling
-- make late-game PE / M&A information dense but low-tap
-- verify every major flow at iPhone viewport
+- clearer milestones and unlock explanations
+- tutorial / first-run guidance
+- explain why PE, IPO, delegation and next-fund gates are locked
+- decision-support hints without choosing for the player
 
-## Content density
+## 11.3 Mobile UX completion
 
-- more varied but system-connected company names / deal profiles / events
-- no disconnected feature-count expansion
+Priorities:
+
+- replace remaining prompt / alert heavy flows with native sheets and controls
+- reduce unnecessary deep scrolling
+- make PE / M&A information dense but low-tap
+- expose all important Phase 10 choices clearly on mobile
+- ensure the Microcap and Capital Allocation surfaces remain contextually separated
+- verify every major route at iPhone viewport
+
+## 11.4 Content density without feature sprawl
+
+Increase variety only where it changes existing systems: company profiles, deal theses, events, competitors and management situations. Do not add unrelated modes merely to increase feature count.
 
 ### Phase 11 exit gate
 
 - no severe dominant strategy
-- no progression dead zones
-- no soft lock in tested long-run archetypes
-- tutorial / unlock path usable on iPhone
-- late-game screens remain manageable on mobile
+- no progression dead zone across tested archetypes
+- no tested long-run soft lock
+- tutorial / unlock path works on iPhone
+- late-game PE / M&A / capital-allocation screens remain usable on mobile
+- long-horizon economy remains finite, deterministic and save-bounded
 
 ---
 
@@ -439,7 +410,8 @@ Phase 12 is the product-completion gate.
 
 Required final verification:
 
-- clean start → operating company → IPO / sale → PE unlock → fund raise → deal → exit end-to-end
+- clean start → operating company → IPO or company sale → PE unlock → Fund I → deal → value creation → exit end-to-end
+- successor-fund progression
 - Save V1 / V2 compatibility
 - corrupted-save recovery
 - company / personal / fund accounting audit
@@ -450,8 +422,8 @@ Required final verification:
 - all major iPhone WebKit routes
 - GitHub Pages deployment
 - published Pages iPhone smoke
-- no known blocker / soft lock
-- roadmap and player-facing documentation aligned with shipped behavior
+- no known blocker or soft lock
+- roadmap and player-facing documentation match shipped behavior
 
 After Phase 12 passes, CAPITAL ASCENT can be treated as the first formal completed release rather than an implementation baseline.
 
