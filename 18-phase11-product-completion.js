@@ -27,7 +27,7 @@ ensureAdvancedState=ensurePhase11State;
 // Phase 11 progression calibration: institutional PE GPs typically commit a small
 // minority of fund capital. Keep the track-record benefit, but avoid the legacy
 // 2–20% range that made Fund I unreachable after a credible founder Exit.
-gpRatio=function(score){return .025-.01*Math.pow(clamp(Number(score)||0,0,100)/100,.7);};
+gpRatio=function(score){return .015-.005*Math.pow(clamp(Number(score)||0,0,100)/100,.7);};
 
 const _p11GeneratePeDeals=generatePeDeals;
 generatePeDeals=function(s){
