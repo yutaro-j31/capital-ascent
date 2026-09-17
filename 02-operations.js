@@ -1,4 +1,4 @@
-function marketingLift(adSpend){return 1+Math.log1p(Math.max(0,Number(adSpend)||0)/50000)*.08;}
+function marketingLift(adSpend){return 1+Math.log1p(Math.max(0,Number(adSpend)||0)/50000)*.05;}
 function runStore(s,store){const b=s.company.businesses[store.businessID], p=PILLARS[store.businessID];const price=store.priceOverride||b.price;const sibling=s.company.stores.filter(x=>x.businessID===store.businessID&&x.region===store.region).length-1;const cannibal=Math.pow(.82,sibling);const macro=1+s.macro.cycle*.08;const quality=1+(b.quality-50)/120;const brand=1+(b.brand-45)/150;const eff=1+(b.efficiency-35)/220;const priceSens=Math.pow(p.price/price,1.25);const hours=.85+store.operatingHours/80;const marketing=marketingLift(b.adSpend);
   if(store.businessID==='gym'){
     const occ=store.members/store.capacity, strat=b.gymStrategy==='premium'?0.8:b.gymStrategy==='offPeak'?1.12:1;const adds=Math.max(0,Math.round((15+store.traffic*16+ b.brand*.12)*strat*marketing*(occ>.8?.55:1)*(1+s.macro.cycle*.05)+noise(`gymadd:${store.id}:${s.week}`,5)));const churnRate=clamp(.025+(price/p.price-1)*.025+(occ>.9?.035:0)-(b.quality-50)/2500,.008,.11);const churn=Math.round(store.members*churnRate);store.members=clamp(store.members+adds-churn,0,store.capacity);const revenue=store.members*price;const variable=revenue*.18;const cost=variable+p.fixed+p.wage+store.rent+b.adSpend/Math.max(1,s.company.stores.filter(x=>x.businessID===store.businessID).length);return {revenue,cost,units:store.members};
@@ -23,6 +23,6 @@ function runProduct(s,b){let p=b.product;if(!p){return {revenue:0,cost:PILLARS.p
 function processCompanyWeek(s){let rev=0,cost=0,units=0;for(const store of s.company.stores){const r=runStore(s,store);store.lastRevenue=r.revenue;store.lastProfit=r.revenue-r.cost;store.lastUnits=r.units;rev+=r.revenue;cost+=r.cost;units+=r.units;}
   const it=s.company.businesses.productVentures;if(it){const r=runProduct(s,it);rev+=r.revenue;cost+=r.cost;}
   const interest=s.company.debt*(.035+s.macro.rate)/52;cost+=interest;const profit=rev-cost;s.company.cash+=profit;s.company.lastWeekRevenue=rev;s.company.lastWeekProfit=profit;s.company.cumulativeProfit+=profit;
-  for(const b of Object.values(s.company.businesses)){b.menuBuzz=Math.max(15,b.menuBuzz*.992);b.brand=clamp(b.brand+Math.log1p(Math.max(0,b.adSpend)/50000)*.045-.025,0,100);}
+  for(const b of Object.values(s.company.businesses)){b.menuBuzz=Math.max(15,b.menuBuzz*.992);b.brand=clamp(b.brand+Math.log1p(Math.max(0,b.adSpend)/50000)*.025-.025,0,100);}
   if(s.company.cash< -3000000){s.gameOver=true;log('会社現金が危険水準を割り込み、事業継続不能となった。','bad');}
 }
