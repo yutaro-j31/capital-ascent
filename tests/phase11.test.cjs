@@ -31,7 +31,16 @@ test('Phase 11 Fund I GP commitment is reachable but still requires founder capi
   r.api.eval('state.pe.unlocked=true;state.personal.cash=20000000;');
   assert.equal(r.api.raiseFund(),true);
   const s=plain(r.api.get()),fund=s.pe.funds[0];
-  assert.ok(fund.gpCommit/fund.commitments>=.02&&fund.gpCommit/fund.commitments<=.04);
+  assert.ok(fund.gpCommit/fund.commitments>=.015&&fund.gpCommit/fund.commitments<=.025);
   assert.ok(fund.gpContributed>0&&fund.gpContributed<20000000);
   assert.equal(fund.calledCapital,290000000);
+});
+
+
+test('Phase 11 PE deal tickets are sized to make the deployment gate structurally reachable',()=>{
+  const r=createRuntime();r.api.fresh('P11 TICKET','ramen','東京');
+  r.api.eval('state.pe.unlocked=true;state.personal.cash=100000000;raiseFund();generatePeDeals(state);');
+  const s=plain(r.api.get()),fund=s.pe.funds[0],deal=s.pe.deals.find(function(d){return d.status==='open';});
+  assert.ok(deal);assert.ok(deal.value>=fund.commitments/fund.slots*1.6);
+  assert.ok(deal.value<=fund.commitments/fund.slots*2.3);
 });
