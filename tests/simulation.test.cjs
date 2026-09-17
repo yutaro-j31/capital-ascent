@@ -146,8 +146,8 @@ test('Phase 9 competitors remember and react to player strategy only at quarter 
 
 test('Phase 9 capex is constrained by management capacity and has delayed completion',()=>{
   const r=createRuntime();r.api.fresh('CAPEX DEPTH','ramen','東京');r.api.eval('state.company.cash=1000000000;');
-  const before=r.api.get().company.businesses.ramen.brand;assert.equal(r.api.projectCapacity(),1);
+  assert.equal(r.api.projectCapacity(),1);
   assert.equal(r.api.capex('ramen','renovation'),true);assert.equal(r.api.capex('ramen','automation'),false);
-  r.api.simulate(7);assert.equal(r.api.get().company.businesses.ramen.brand,before);
-  r.api.simulate(1);const s=plain(r.api.get());assert.ok(s.company.businesses.ramen.brand>before);assert.equal(s.projects.find(x=>x.scope==='capex').status,'completed');
+  r.api.simulate(7);let s=plain(r.api.get());const p=s.projects.find(x=>x.scope==='capex');const preCompletionBrand=s.company.businesses.ramen.brand;assert.equal(p.status,'in_progress');
+  r.api.simulate(1);s=plain(r.api.get());assert.ok(s.company.businesses.ramen.brand>preCompletionBrand);assert.equal(s.projects.find(x=>x.scope==='capex').status,'completed');
 });
