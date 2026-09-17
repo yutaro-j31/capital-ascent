@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const RUNTIME_FILES=[
   '01-core.js','02-operations.js','03-markets-pe.js','04-finance.js','05-ui-core.js','06-ui-extra.js',
-  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js'
+  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js'
 ];
 
 function createStorage(){
@@ -50,6 +50,9 @@ function createRuntime(){
       companyValue:()=>companyValue(state),personalNetWorth:()=>personalNetWorth(state),
       sites:(id,region)=>propertyCandidates(id,region),pressure:(id,region,p)=>competitionPressureAt(id,region,p),
       invest:(id,kind,amt)=>investBusiness(id,kind,amt),policy:(id,mode)=>setBusinessPolicy(id,mode),
+      autonomy:(id,level)=>setManagementAutonomy(id,level),reviewCadence:(id,c)=>setManagementReviewCadence(id,c),
+      capex:(id,kind,cost)=>scheduleCapexProject(id,kind,cost),projectCapacity:()=>projectCapacity(state),
+      competitors:(id,region)=>cityCompetitors(id,region),signal:(id,region)=>playerSignalFor(state,id,region),
       acquireSub:()=>acquireSubsidiary(),sellSub:()=>sellSubsidiary(),
       dd:id=>ddDeal(id),acquirePe:id=>acquireDeal(id),improvePe:(id,k)=>improvePortfolio(id,k),exitPe:id=>exitPortfolio(id),
       compact:()=>compactStateForSave(state),exportText:()=>exportSaveText(),
