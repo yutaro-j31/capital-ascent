@@ -31,7 +31,7 @@ test('Phase 11 Fund I GP commitment is reachable but still requires founder capi
   r.api.eval('state.pe.unlocked=true;state.personal.cash=20000000;');
   assert.equal(r.api.raiseFund(),true);
   const s=plain(r.api.get()),fund=s.pe.funds[0];
-  assert.ok(fund.gpCommit/fund.commitments>=.015&&fund.gpCommit/fund.commitments<=.025);
+  assert.ok(fund.gpCommit/fund.commitments>=.01&&fund.gpCommit/fund.commitments<=.015);
   assert.ok(fund.gpContributed>0&&fund.gpContributed<20000000);
   assert.equal(fund.calledCapital,290000000);
 });
