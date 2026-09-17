@@ -1,7 +1,8 @@
 import {defineConfig} from '@playwright/test';
 
-const publishedBaseURL=process.env.PLAYWRIGHT_BASE_URL?.replace(/\/$/,'');
-const localBaseURL='http://127.0.0.1:4173';
+const external=process.env.PLAYWRIGHT_BASE_URL;
+const publishedBaseURL=external?`${external.replace(/\/+$/,'')}/`:null;
+const localBaseURL='http://127.0.0.1:4173/';
 
 export default defineConfig({
   testDir:'./tests',
