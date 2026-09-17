@@ -16,7 +16,7 @@ test('runtime boots with roadmap layers',()=>{
   assert.ok(r.api);assert.equal(typeof r.api.fresh,'function');
   const s=plain(r.api.fresh());
   assert.equal(s.schemaVersion,2);
-  assert.deepEqual(r.api.validate(),[]);
+  assert.equal(r.api.validate().length,0);
 });
 
 test('same seed and actions are deterministic for 10 years',()=>{
@@ -32,7 +32,7 @@ test('100-year simulation stays finite and save remains bounded',()=>{
   const r=createRuntime();r.api.fresh('CENTURY','ramen','東京');
   r.api.eval('state.company.cash=1000000000000;state.company.debt=0;');
   r.api.simulate(5200);const s=plain(r.api.get());
-  assertFinite(s);assert.deepEqual(r.api.validate(),[]);
+  assertFinite(s);assert.equal(r.api.validate().length,0);
   r.api.compact();const bytes=Buffer.byteLength(r.api.exportText(),'utf8');
   assert.ok(bytes<5*1024*1024,`save ${bytes} bytes should stay under 5MB`);
   assert.ok(s.week>=5200,'simulation should reach roughly a century');
