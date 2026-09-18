@@ -248,11 +248,12 @@ function m22BusinessEntryPanel(){
 }
 operations=function(){
   let html=_m22Operations();
-  if(!selectedBusiness){
-    html=html.replace('data-add-business="realEstateAgency">参入</button>','data-add-business="realEstateAgency">参入 · 75万円</button>');
-  }else if(!selectedMapBusiness&&!selectedStoreDetail){
+  if(!state.company.businesses.realEstateAgency&&!html.includes('data-add-business="realEstateAgency"')){
+    html=injectBeforeMainClose(html,m22BusinessEntryPanel());
+  }else if(selectedBusiness&&!selectedMapBusiness&&!selectedStoreDetail){
     html=injectBeforeMainClose(html,m22BusinessEntryPanel());
   }
+  html=html.replace('data-add-business="realEstateAgency">参入</button>','data-add-business="realEstateAgency">参入 · 75万円</button>');
   return html;
 };
 
