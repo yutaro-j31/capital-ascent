@@ -47,7 +47,7 @@ phase10FundPanel=function(f){
   if(m.deployment<.80)reasons.push('投資済み比率 '+pct(m.deployment)+' / 80%必要');
   if((state.pe.lpTrust||0)<45)reasons.push('外部投資家からの信頼度 '+Math.round(state.pe.lpTrust)+' / 45必要');
   return '<section class="card p10-fund m22-fund">'+
-    '<div class="section-row"><div><h2>'+f.id+' ファンド収益</h2><p class="sub">'+m22FundStatusLabel(m.status)+'。ファンドに集めた資金が、どこまで投資され、いくら戻ってきたかを表示しています。</p></div><span class="pill live">投資家信頼 '+Math.round(state.pe.lpTrust)+'</span></div>'+
+    '<div class="section-row"><div><h2>第'+f.number+'号ファンド 収益</h2><p class="sub">'+m22FundStatusLabel(m.status)+'。ファンドに集めた資金が、どこまで投資され、いくら戻ってきたかを表示しています。</p></div><span class="pill live">投資家信頼 '+Math.round(state.pe.lpTrust)+'</span></div>'+
     '<div class="p10-fund-grid m22-fund-grid">'+
       '<div><small>出資約束総額</small><b>'+yen(f.commitments)+'</b><em>投資家とあなたが「最大ここまで出す」と約束した総額</em></div>'+
       '<div><small>実際に払込済みの資金</small><b>'+yen(m.paidIn)+'</b><em>すでにファンド口座へ入った金額</em></div>'+
@@ -123,7 +123,16 @@ peView=function(){
   if(!state.pe.unlocked)return html;
   html=m22ReplaceSection(html,'GP運営会社',m22GpCompanyPanel());
   html=m22ReplaceSection(html,'ネットワーク / LP',m22NetworkPanel());
-  html=html.replace('投資委員会 / 案件一覧','投資候補案件').replace('ポートフォリオ構築','保有中の投資先').replace(/>DD<\/button>/g,'>企業調査（DD）<\/button>').replace(/>Cost<\/button>/g,'>コスト改善<\/button>');
+  html=html
+    .replace('Fund I 初回募集','第1号ファンドを作る')
+    .replace('Fund Iは2.9B commitments。最初に10%を資金払込し、案件取得時に必要額を追加Callします。','第1号ファンドの出資約束総額は29億円です。最初は10%だけをファンド口座へ払い込み、企業を買収する時に必要な分を追加で集めます。')
+    .replace('Fund Iを組成','第1号ファンドを作る')
+    .replace('投資委員会 / 案件一覧','投資候補案件')
+    .replace('ポートフォリオ構築','保有中の投資先')
+    .replace(/>DD<\/button>/g,'>企業調査（DD）<\/button>')
+    .replace(/>Acquire<\/button>/g,'>買収実行<\/button>')
+    .replace(/>Cost<\/button>/g,'>コスト改善<\/button>')
+    .replace(/>Exit<\/button>/g,'>売却を検討<\/button>');
   html=html.replace('<div class="screen-head"><div class="copy"><h1>PEファーム</h1><p>LP commitmentsを預かり、capital call・portfolio construction・value creation・distributionまで運営します。</p></div></div>',
     '<div class="screen-head"><div class="copy"><h1>PEファーム</h1><p>外部投資家から預かった資金で企業へ投資し、企業価値を高めて売却し、利益を投資家と運営会社へ分配します。</p></div></div>');
   return html.replace('</main>',m22ExitHistoryPanel()+'</main>');
