@@ -30,7 +30,7 @@ test('iPhone WebKit covers Phase 11 progression, native sheets and late-game sur
 
   await page.locator('[data-act="advance"]').click();
   await expect(page.locator('.week-badge')).toContainText('第2週');
-  await expect(page.getByText('経営報告')).toBeVisible();
+  await expect(page.getByRole('heading',{name:/経営報告/})).toBeVisible();
 
   await page.locator('nav [data-tab="operations"]').click();
   await page.locator('[data-manage-business="ramen"]').click();
