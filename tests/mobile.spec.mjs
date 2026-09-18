@@ -106,7 +106,7 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expect(page.getByText('資本配分室')).toBeVisible();
 
   await page.locator('nav [data-tab="pe"]').click();
-  await expect(page.getByText('F1 ファンド収益')).toBeVisible();
+  await expect(page.getByRole('heading',{name:'第1号ファンド 収益'})).toBeVisible();
   await expect(page.getByRole('heading',{name:'投資候補案件'})).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
