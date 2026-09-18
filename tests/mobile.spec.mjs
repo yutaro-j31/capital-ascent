@@ -12,7 +12,7 @@ test('iPhone WebKit covers Phase 11 progression, native sheets and late-game sur
   await expect(page.locator('[data-act="start"]')).toBeVisible();
   await page.locator('[data-act="start"]').click();
   await expect(page.locator('.topbar')).toBeVisible();
-  await expect(page.getByText('CEO Command Center')).toBeVisible();
+  await expect(page.getByText('CEO経営司令室')).toBeVisible();
   await expect(page.locator('.cc-hero')).toBeVisible();
   await expect(page.locator('[data-cc-section="kpis"]')).toBeVisible();
   await expect(page.locator('.cc-kpi-card')).toHaveCount(5);
@@ -25,33 +25,33 @@ test('iPhone WebKit covers Phase 11 progression, native sheets and late-game sur
   await expect(page.locator('[data-cc-section="quarter"]')).toBeVisible();
   await expect(page.locator('.cc-calendar-row').first()).toBeVisible();
   await expect(page.locator('.cc-summit')).toBeVisible();
-  await expect(page.getByText('Founder Launch Guide')).toBeVisible();
-  await expect(page.getByText('Progression Journey')).toBeVisible();
+  await expect(page.getByText('創業者ガイド')).toBeVisible();
+  await expect(page.getByText('成長ロードマップ')).toBeVisible();
 
   await page.locator('[data-act="advance"]').click();
-  await expect(page.locator('.week-badge')).toContainText('W2');
-  await expect(page.getByText('Executive Management Brief')).toBeVisible();
+  await expect(page.locator('.week-badge')).toContainText('第2週');
+  await expect(page.getByRole('heading',{name:/経営報告/})).toBeVisible();
 
   await page.locator('nav [data-tab="operations"]').click();
   await page.locator('[data-manage-business="ramen"]').click();
-  await expect(page.getByText('Management Organization')).toBeVisible();
-  await expect(page.getByText('Capital Program')).toBeVisible();
+  await expect(page.getByText('経営組織')).toBeVisible();
+  await expect(page.getByText('設備投資計画')).toBeVisible();
   await page.locator('[data-open-map-business="ramen"]').click();
   await expect(page.locator('.city-world-screen')).toBeVisible();
   await expect(page.locator('.rival-pin').first()).toBeVisible();
   await expect(page.locator('.site-pin').first()).toBeVisible();
 
   await page.locator('nav [data-tab="market"]').click();
-  await expect(page.getByText('Capital Allocation Office')).toBeVisible();
-  await expect(page.getByText('Capital Constraints')).toBeVisible();
+  await expect(page.getByText('資本配分室')).toBeVisible();
+  await expect(page.getByRole('heading',{name:'資本制約'})).toBeVisible();
   await page.locator('[data-act="borrow"]').first().click();
   await expect(page.getByRole('dialog',{name:'銀行借入'})).toBeVisible();
   await expect(page.locator('[data-p11-sheet-input]')).toBeVisible();
   await page.locator('[data-p11-sheet-close]').click();
 
   await page.locator('nav [data-tab="pe"]').click();
-  await expect(page.getByText('Phase 10 — Fund Economics')).toBeVisible();
-  await expect(page.getByText('PE Unlock Path')).toBeVisible();
+  await expect(page.getByText('ファンド運営')).toBeVisible();
+  await expect(page.getByText('PE解禁条件')).toBeVisible();
 
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
@@ -74,12 +74,12 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
     save();tab='overview';selectedBusiness=null;render();
   });
 
-  await expect(page.getByText('CEO Command Center')).toBeVisible();
+  await expect(page.getByText('CEO経営司令室')).toBeVisible();
   await expect(page.locator('.cc-kpi-card')).toHaveCount(5);
   await expect(page.locator('.cc-business-row').first()).toBeVisible();
   await expect(page.locator('.cc-allocation-row')).toHaveCount(5);
   await expect(page.locator('.cc-calendar-row').first()).toBeVisible();
-  await expect(page.getByText('Progression Journey')).toBeVisible();
+  await expect(page.getByText('成長ロードマップ')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="operations"]').click();
@@ -87,33 +87,33 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expectNoHorizontalOverflow(page);
 
   await page.locator('[data-manage-business="ramen"]').click();
-  await expect(page.getByText('Management Organization')).toBeVisible();
+  await expect(page.getByText('経営組織')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="market"]').click();
-  await expect(page.getByText('Capital Allocation Office')).toBeVisible();
+  await expect(page.getByText('資本配分室')).toBeVisible();
   await expect(page.locator('[data-market-pane="microcap"]')).toBeVisible();
   await page.locator('[data-market-pane="microcap"]').click();
   await expect(page.locator('[data-market-pane="microcap"].active')).toBeVisible();
   await expectNoHorizontalOverflow(page);
   await page.locator('[data-market-pane="capital"]').click();
-  await expect(page.getByText('Capital Allocation Office')).toBeVisible();
+  await expect(page.getByText('資本配分室')).toBeVisible();
 
   await page.locator('nav [data-tab="pe"]').click();
-  await expect(page.getByText('F1 Fund Economics')).toBeVisible();
-  await expect(page.getByText('Deal Book')).toBeVisible();
+  await expect(page.getByText('F1 ファンド収益')).toBeVisible();
+  await expect(page.getByText('案件一覧')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="legacy"]').click();
-  await expect(page.getByText('Save Safety')).toBeVisible();
-  await expect(page.getByText('Career Progress')).toBeVisible();
+  await expect(page.getByText('セーブ保護')).toBeVisible();
+  await expect(page.getByText('キャリア進捗')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="overview"]').click();
-  await expect(page.getByText('CEO Command Center')).toBeVisible();
+  await expect(page.getByText('CEO経営司令室')).toBeVisible();
   await expect(page.locator('.cc-topbar')).toBeVisible();
   await expect(page.locator('.cc-nav [data-tab="overview"].active')).toBeVisible();
-  await expect(page.getByText('Progression Journey')).toBeVisible();
+  await expect(page.getByText('成長ロードマップ')).toBeVisible();
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
