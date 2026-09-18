@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const RUNTIME_FILES=[
   '01-core.js','02-operations.js','03-markets-pe.js','04-finance.js','05-ui-core.js','06-ui-extra.js',
-  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js','17-phase10-capital-allocator.js','18-phase11-product-completion.js','19-ceo-command-center.js','20-ja-ui-localization.js','21-management-ownership-deepening.js','22-player-feedback-depth.js'
+  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js','17-phase10-capital-allocator.js','18-phase11-product-completion.js','19-ceo-command-center.js','20-ja-ui-localization.js','21-management-ownership-deepening.js','22-player-feedback-depth.js','23-pe-fundraising-turnaround.js'
 ];
 
 function createStorage(){
@@ -61,7 +61,10 @@ function createRuntime(){
       raiseFund:()=>raiseFund(),fundMetrics:id=>fundMetrics(state.pe.funds.find(f=>f.id===id)||currentFund(),state),fundGate:()=>nextFundEligibility(state),callFund:(id,amt,reason)=>callFundCapital(state.pe.funds.find(f=>f.id===id),amt,reason),
       allocation:()=>capitalAllocationSnapshot(state),dividend:()=>paySpecialDividend(),buyback:()=>executeBuyback(),
       ipoPct:p=>executeIpoSalePct(p),sellCompany:()=>sellCompany(),
-      addBusiness:id=>addBusiness(id),formatYen:n=>yen(n),peHtml:()=>peView(),marketHtml:()=>market(),
+      addBusiness:id=>addBusiness(id),formatYen:n=>yen(n),peHtml:()=>peView(),marketHtml:()=>market(),operationsHtml:()=>operations(),
+      fundraiseStart:(target,gp)=>m23StartFundraising(target,gp),fundraiseSolicit:id=>m23SolicitLP(id),fundraiseDdq:()=>m23RunDdq(),
+      fundraiseAnchor:id=>m23SelectAnchor(id),fundraiseCommit:id=>m23InviteLP(id),fundraiseFirstClose:()=>m23FirstClose(),fundraiseFinalClose:()=>m23FinalClose(),fundraiseExpand:()=>m23ExpandLPUniverse(),
+      turnaroundPe:id=>m23StartTurnaround(id),serviceTurnarounds:()=>m23ServiceTurnarounds(state),
       journey:()=>phase11Journey(state),unlocks:()=>phase11UnlockReasons(state),tutorial:()=>phase11TutorialSteps(state),
       borrowNative:(amt)=>{phase11ExecuteBorrow(amt);return true;},repayNative:(amt)=>{phase11ExecuteRepay(amt);return true;},
       compact:()=>compactStateForSave(state),exportText:()=>exportSaveText(),importText:(text)=>importSaveText(text),
