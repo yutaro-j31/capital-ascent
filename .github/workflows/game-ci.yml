@@ -33,6 +33,9 @@ jobs:
       - name: Strategy balance smoke
         if: steps.detect.outputs.run == 'true' && hashFiles('tools/balance-sim.cjs') != ''
         run: node tools/balance-sim.cjs --ci
+      - name: Phase 12 release candidate audit
+        if: steps.detect.outputs.run == 'true' && hashFiles('tools/release-candidate-audit.cjs') != ''
+        run: node tools/release-candidate-audit.cjs
       - name: Phase 11 long-horizon cohort
         if: steps.detect.outputs.run == 'true' && hashFiles('tools/phase11-cohort.cjs') != ''
         run: node tools/phase11-cohort.cjs --ci
