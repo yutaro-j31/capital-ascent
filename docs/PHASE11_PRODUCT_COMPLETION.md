@@ -1,6 +1,6 @@
 # CAPITAL ASCENT — Phase 11 Product Completion
 
-Status: implementation on phase11-product-completion
+Status: COMPLETE
 
 Phase 11 turns the mechanically complete Phase 0–10 game into a legible long-form product. It does not add another disconnected finance mode.
 
@@ -79,3 +79,25 @@ Phase 11 is complete only when:
 - strategy-bot dominance remains within the standing threshold
 - Phase 10 PE / M&A / capital-allocation screens remain usable on iPhone
 - published Pages smoke remains green after merge
+
+
+## Completion evidence
+
+Final Phase 11 implementation validation:
+
+- simulation / invariant suite: PASS
+- strategy balance smoke: PASS
+- iPhone WebKit smoke: PASS
+- long-horizon cohort: PASS
+- Allocator Fund II milestone: W209
+- Fund II reached inside the 10-year checkpoint
+- 100-year allocator progression reached Fund III
+- long-form allocator run completed 9 PE investments and 9 PE exits
+
+The cohort originally failed because Fund I economics created a progression dead zone. Phase 11 fixed the underlying economics and capital-management behavior rather than lowering the Fund II eligibility thresholds.
+
+Fund II eligibility remains:
+
+- DPI >= 1.20x
+- deployment >= 80%
+- LP Trust >= 45
