@@ -13,7 +13,7 @@ test('Phase 12 export/import round-trip preserves schema and accounting buckets'
   const result=t.api.importText(exported);
   assert.equal(result.ok,true);const after=plain(t.api.get());
   assert.equal(after.schemaVersion,2);assert.equal(after.company.cash,before.company.cash);assert.equal(after.personal.cash,before.personal.cash);
-  assert.deepEqual(t.api.validate(),[]);
+  assert.equal(t.api.validate().length,0);
 });
 
 test('Phase 12 rejects unsupported future save schema',()=>{
