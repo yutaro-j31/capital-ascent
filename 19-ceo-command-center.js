@@ -1,7 +1,7 @@
 'use strict';
 
 // CEO Command Center: executive shell + live simulation-backed operating surfaces.
-const _ccBind=bind;
+const _ccBind=bind,_ccTopbar=topbar,_ccNav=nav;
 
 function ccRoleLabel(){
   try{return phase11Journey(state).role||'Owner Operator';}
@@ -94,15 +94,57 @@ function ccHero(){
 function ccQuickActions(){
   return '<div class="cc-quick-actions"><button data-act="advance13"><span>13W</span><b>Quarter Advance</b></button><button data-tab="operations"><span>OPS</span><b>Operations</b></button><button data-tab="market"><span>CAP</span><b>Capital</b></button><button data-tab="pe"><span>PE</span><b>Deal Office</b></button></div>';
 }
-function ccPlaceholder(title,kicker,kind){
-  return '<section class="cc-panel cc-placeholder cc-'+kind+'-panel" data-cc-section="'+kind+'"><div class="cc-panel-head"><div><span>'+kicker+'</span><h2>'+title+'</h2></div><i>LIVE</i></div><div class="cc-placeholder-body"><b>Executive data surface</b><small>PR3で資本配分・Board Calendarを接続します。</small></div></section>';
+function ccCapitalAllocation(){
+  ensurePhase10State(state);
+  const since=Math.max(1,state.week-51);
+  const capex=(state.projects||[]).filter(function(p){return Number(p.startWeek||0)>=since;}).reduce(function(a,p){return a+(Number(p.cost)||0);},0);
+  const acquisitions=(state.company.subsidiaryPortfolio||[]).filter(function(s){return Number(s.acquisitionWeek||0)>=since;}).reduce(function(a,s){return a+(Number(s.acquisitionPrice)||0);},0);
+  const pmi=(state.company.integrationProjects||[]).filter(function(p){return Number(p.startWeek||0)>=since;}).reduce(function(a,p){return a+(Number(p.cost)||0);},0);
+  const returns=(Number(state.company.capitalAllocation&&state.company.capitalAllocation.dividendsPaid)||0)+(Number(state.company.capitalAllocation&&state.company.capitalAllocation.buybackSpend)||0);
+  const rows=[
+    {label:'Organic CAPEX · 52W',value:capex,icon:'▥'},
+    {label:'M&A + PMI · 52W',value:acquisitions+pmi,icon:'◇'},
+    {label:'Shareholder Return · LTD',value:returns,icon:'↗'},
+    {label:'Debt Outstanding',value:Math.max(0,Number(state.company.debt)||0),icon:'▰'},
+    {label:'Cash Reserve',value:Math.max(0,Number(state.company.cash)||0),icon:'●'}
+  ];
+  const total=Math.max(1,rows.reduce(function(a,x){return a+x.value;},0));
+  return '<section class="cc-panel cc-capital-panel" data-cc-section="capital"><div class="cc-panel-head"><div><span>CAPITAL OFFICE</span><h2>Capital Allocation</h2></div><i>ACTUAL</i></div><p class="cc-panel-note">直近52週の投下資本と現在のBalance Sheetを表示。予算値ではありません。</p><div class="cc-allocation-list">'+rows.map(function(x){const share=x.value/total;return '<div class="cc-allocation-row"><span>'+x.icon+'</span><div><b>'+x.label+'</b><div class="cc-allocation-track"><i style="width:'+Math.max(2,Math.round(share*100))+'%"></i></div></div><strong>'+yen(x.value)+'</strong></div>';}).join('')+'</div><button class="cc-panel-link" data-cc-route="market">Open Capital Allocation Office <b>›</b></button></section>';
+}
+function ccQuarterEvents(){
+  const qEnd=state.week+(12-((state.week-1)%13));
+  const items=[{week:qEnd,tag:'BOARD',title:'Quarter Close / Operating Review',sub:'次四半期の資本配分と事業優先順位を更新。',route:'overview'}];
+  (state.projects||[]).filter(function(p){return p.status==='in_progress'&&p.completeWeek>=state.week&&p.completeWeek<=qEnd;}).forEach(function(p){items.push({week:p.completeWeek,tag:'CAPEX',title:(PILLARS[p.targetId]&&PILLARS[p.targetId].name||p.targetId)+' '+String(p.kind).toUpperCase()+' complete',sub:'投資効果が週次economicsへ反映開始。',route:'operations',business:p.targetId});});
+  (state.company.integrationProjects||[]).filter(function(p){return p.status==='in_progress'&&p.completeWeek>=state.week&&p.completeWeek<=qEnd;}).forEach(function(p){const sub=(state.company.subsidiaryPortfolio||[]).find(function(s){return s.id===p.subsidiaryId;});items.push({week:p.completeWeek,tag:'PMI',title:(sub&&sub.name||'Subsidiary')+' integration milestone',sub:'Synergy / margin / management qualityの統合結果を確認。',route:'market'});});
+  (typeof activeEvents==='function'?activeEvents(state):[]).filter(function(e){return e.endWeek>=state.week&&e.endWeek<=qEnd;}).forEach(function(e){items.push({week:e.endWeek,tag:'MACRO',title:(typeof eventLabel==='function'?eventLabel(e.type):e.type)+' ends',sub:'外部環境の業績影響が終了予定。',route:'operations'});});
+  const fund=(state.pe&&state.pe.funds||[]).slice(-1)[0];
+  if(fund){
+    if(fund.investmentEndWeek>=state.week&&fund.investmentEndWeek<=qEnd)items.push({week:fund.investmentEndWeek,tag:'FUND',title:fund.id+' Investment Period End',sub:'Deploymentとreserveを確認。',route:'pe'});
+    if(fund.endWeek>=state.week&&fund.endWeek<=qEnd)items.push({week:fund.endWeek,tag:'LP',title:fund.id+' Fund Term End',sub:'DPI / TVPI / distributionsを確認。',route:'pe'});
+  }
+  return items.sort(function(a,b){return a.week-b.week;}).slice(0,5);
+}
+function ccQuarterCalendar(){
+  const events=ccQuarterEvents();
+  return '<section class="cc-panel cc-quarter-panel" data-cc-section="quarter"><div class="cc-panel-head"><div><span>BOARD CALENDAR</span><h2>This Quarter</h2></div><i>W'+state.week+'</i></div><div class="cc-calendar-list">'+events.map(function(x){const left=Math.max(0,x.week-state.week);return '<button class="cc-calendar-row" data-cc-route="'+x.route+'"'+(x.business?' data-cc-business="'+x.business+'"':'')+'><time><b>W'+x.week+'</b><small>'+(left===0?'NOW':'+'+left+'W')+'</small></time><em>'+x.tag+'</em><div><b>'+x.title+'</b><small>'+x.sub+'</small></div><strong>›</strong></button>';}).join('')+'</div></section>';
+}
+function ccSummitBanner(){
+  return '<section class="cc-summit"><div><span>NEXT SUMMIT</span><b>Operate the business. Allocate the capital. Compound the advantage.</b><small>'+ccRoleLabel()+' · Y'+state.year+' W'+state.week+'</small></div><button data-tab="legacy">Career & Legacy ›</button></section>';
 }
 function ccLegacyPanels(){
   let html='';if(typeof phase11TutorialPanel==='function')html+=phase11TutorialPanel();if(typeof phase11JourneyPanel==='function')html+=phase11JourneyPanel();if(typeof briefPanel==='function')html+='<div class="cc-board-papers"><div class="cc-section-title"><span>BOARD PAPERS</span><h2>Operating Review</h2></div>'+briefPanel()+'</div>';return html;
 }
 overview=function(){
   ensurePhase11State(state);
-  return '<main class="cc-main">'+ccHero()+ccQuickActions()+'<div class="cc-layout">'+ccExecutiveMetrics()+ccInbox()+ccBusinessUnits()+ccPlaceholder('Capital Allocation','CAPITAL OFFICE','capital')+ccPlaceholder('This Quarter','BOARD CALENDAR','quarter')+'</div>'+ccLegacyPanels()+'</main>';
+  return '<main class="cc-main">'+ccHero()+ccQuickActions()+'<div class="cc-layout">'+ccExecutiveMetrics()+ccInbox()+ccBusinessUnits()+ccCapitalAllocation()+ccQuarterCalendar()+'</div>'+ccSummitBanner()+ccLegacyPanels()+'</main>';
+};
+topbar=function(){
+  if(tab!=='overview')return _ccTopbar();
+  return '<header class="topbar cc-topbar"><div class="cc-topbar-brand"><b>'+state.player.name+'</b><span>CAPITAL ASCENT · CEO OFFICE</span></div><div class="time-ctrl"><div class="week-badge"><b>Y'+state.year+' · W'+state.week+'</b><small>'+ccRoleLabel()+'</small></div><button class="advance-btn" data-act="advance" aria-label="1週進める">▶</button></div></header>';
+};
+nav=function(){
+  const items=[['overview','▥','Overview'],['operations','▦','Operations'],['market','↗','Market'],['pe','◉','PE'],['legacy','△','Legacy']];
+  return '<nav class="nav cc-nav">'+items.map(function(x){return '<button data-tab="'+x[0]+'" class="'+(tab===x[0]?'active':'')+'"><span class="ico">'+x[1]+'</span>'+x[2]+'</button>';}).join('')+'</nav>';
 };
 bind=function(){
   _ccBind();

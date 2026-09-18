@@ -20,6 +20,11 @@ test('iPhone WebKit covers Phase 11 progression, native sheets and late-game sur
   await expect(page.locator('.cc-inbox-row').first()).toBeVisible();
   await expect(page.locator('[data-cc-section="business"]')).toBeVisible();
   await expect(page.locator('.cc-business-row').first()).toBeVisible();
+  await expect(page.locator('[data-cc-section="capital"]')).toBeVisible();
+  await expect(page.locator('.cc-allocation-row')).toHaveCount(5);
+  await expect(page.locator('[data-cc-section="quarter"]')).toBeVisible();
+  await expect(page.locator('.cc-calendar-row').first()).toBeVisible();
+  await expect(page.locator('.cc-summit')).toBeVisible();
   await expect(page.getByText('Founder Launch Guide')).toBeVisible();
   await expect(page.getByText('Progression Journey')).toBeVisible();
 
@@ -72,6 +77,8 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expect(page.getByText('CEO Command Center')).toBeVisible();
   await expect(page.locator('.cc-kpi-card')).toHaveCount(5);
   await expect(page.locator('.cc-business-row').first()).toBeVisible();
+  await expect(page.locator('.cc-allocation-row')).toHaveCount(5);
+  await expect(page.locator('.cc-calendar-row').first()).toBeVisible();
   await expect(page.getByText('Progression Journey')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
@@ -103,6 +110,9 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="overview"]').click();
+  await expect(page.getByText('CEO Command Center')).toBeVisible();
+  await expect(page.locator('.cc-topbar')).toBeVisible();
+  await expect(page.locator('.cc-nav [data-tab="overview"].active')).toBeVisible();
   await expect(page.getByText('Progression Journey')).toBeVisible();
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
