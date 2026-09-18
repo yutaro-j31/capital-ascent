@@ -63,6 +63,29 @@ phase10FundPanel=function(f){
   '</section>';
 };
 
+
+m21PeGuide=function(){
+  ensureM21State(state);
+  const funds=state.pe.funds||[],deals=state.pe.deals||[],ports=state.pe.portfolio||[];
+  const hasFund=funds.length>0,hasResearch=deals.some(function(d){return d.dd;}),hasHeld=ports.some(function(p){return p.status==='held';});
+  const hasImprove=ports.some(function(p){return (p.initiatives||[]).length>0||Number(p.improvement)>0;}),hasExit=ports.some(function(p){return p.status==='exited';});
+  const gate=hasFund?nextFundEligibility(state):null;
+  const steps=[
+    ['1','ファンドを作る',hasFund,'あなた自身も少額を出資し、残りを外部投資家から集めます。'],
+    ['2','買収候補を待つ',hasFund&&deals.some(function(d){return d.status==='open';}),'買収できそうな会社が四半期ごとに届きます。'],
+    ['3','企業調査をする',hasResearch,'売上の質・リスク・借入余力を調べて、買う価値があるか確認します。'],
+    ['4','会社を買収する',hasHeld,'ファンド資金と借入を組み合わせて会社を取得します。'],
+    ['5','買収先を改善する',hasImprove,'コスト、人材、設備、販路へ投資して利益を伸ばします。'],
+    ['6','借入を返しながら成長させる',hasHeld,'利益から借入を返すほど、株主側の価値が増えやすくなります。'],
+    ['7','会社を売却して現金回収',hasExit,'売却後、ファンドへ戻った現金とあなた個人の受取額を確認できます。'],
+    ['8','次のファンドを作る',!!(gate&&gate.eligible),'回収実績・投資済み比率・外部投資家からの信頼が一定以上なら次へ進めます。']
+  ];
+  let current=steps.findIndex(function(x){return !x[2];});if(current<0)current=steps.length-1;
+  const rows=steps.map(function(x,i){return '<div class="m21-pe-step '+(x[2]?'done':i===current?'current':'')+'"><span>'+(x[2]?'✓':x[0])+'</span><div><b>'+x[1]+'</b><small>'+x[3]+'</small></div></div>';}).join('');
+  return '<section class="card m21-pe-guide"><div class="section-row"><div><h2>PEファームの進め方</h2><p class="sub">専門用語を知らなくても、この8段階を順番に進めれば運営できます。</p></div><span class="pill">8段階</span></div><div class="m21-pe-steps">'+rows+'</div>'+
+    '<div class="m21-glossary"><div><b>外部投資家（LP）</b><span>ファンドへ資金を出してくれる投資家。</span></div><div><b>運営側（GP）</b><span>ファンドを運営するあなたのPE会社。</span></div><div><b>回収済倍率</b><span>払込済み資金に対して、現金で何倍回収したか。</span></div><div><b>総合倍率</b><span>回収済み現金と、まだ保有している会社の価値を合わせた倍率。</span></div></div></section>';
+};
+
 function m22GpCompanyPanel(){
   const cash=Math.max(0,Number(state.pe.managementCompanyCash)||0),dist=cash*.50;
   return '<section class="card half m22-explainer"><h2>PE運営会社の利益</h2>'+
@@ -100,6 +123,7 @@ peView=function(){
   if(!state.pe.unlocked)return html;
   html=m22ReplaceSection(html,'GP運営会社',m22GpCompanyPanel());
   html=m22ReplaceSection(html,'ネットワーク / LP',m22NetworkPanel());
+  html=html.replace('投資委員会 / 案件一覧','投資候補案件').replace('ポートフォリオ構築','保有中の投資先').replace(/>DD<\/button>/g,'>企業調査（DD）<\/button>').replace(/>Cost<\/button>/g,'>コスト改善<\/button>');
   html=html.replace('<div class="screen-head"><div class="copy"><h1>PEファーム</h1><p>LP commitmentsを預かり、capital call・portfolio construction・value creation・distributionまで運営します。</p></div></div>',
     '<div class="screen-head"><div class="copy"><h1>PEファーム</h1><p>外部投資家から預かった資金で企業へ投資し、企業価値を高めて売却し、利益を投資家と運営会社へ分配します。</p></div></div>');
   return html.replace('</main>',m22ExitHistoryPanel()+'</main>');
