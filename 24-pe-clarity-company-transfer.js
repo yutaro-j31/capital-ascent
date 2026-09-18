@@ -75,7 +75,9 @@ function m24CreateNetworkDeal(s,f,quarter,sequence){
   if(s.pe.deals.some(function(d){return d.id===id;}))return null;
   const pillars=Object.keys(PILLARS),businessID=pillars[hash32(key+':sector')%pillars.length];
   const floor=f.number===1?350000000:Math.min(80000000000,(Number(f.size)||Number(f.commitments)||2900000000)*.12);
-  const value=floor*(.72+u01(key+':value')*.96);
+  const rawValue=floor*(.72+u01(key+':value')*.96);
+  const phase11Target=(Number(f.commitments)||Number(f.size)||2900000000)/Math.max(1,Number(f.slots)||1)*1.9*(.85+u01(id+':phase11-ticket')*.30);
+  const value=Math.max(rawValue,phase11Target);
   const ebitda=value/(6.2+u01(key+':multiple')*3.8);
   return {
     id:id,
@@ -276,7 +278,7 @@ function m24PipelinePanel(){
   if(!state.pe.funds.length)return '';
   const open=state.pe.deals.filter(function(d){return d.status==='open';}).length,target=m24DealTarget(state);
   return '<section class="card m24-pipeline"><div class="section-row"><div><h2>案件パイプライン</h2><p class="sub">案件ネットワークが高いほど、同時に検討できる案件数が増えます。</p></div><span class="pill">'+open+' / '+target+'件</span></div>'+
-    '<div class="m24-network-scale"><span>Network 0<b>2件</b></span><span>25<b>3件</b></span><span>50<b>4件</b></span><span>75<b>5件</b></span><span>100<b>6件</b></span></div></section>';
+    '<div class="m24-network-scale"><span>Network 0<b>2件</b></span><span>Network 25<b>3件</b></span><span>Network 50<b>4件</b></span><span>Network 75<b>5件</b></span><span>Network 100<b>6件</b></span></div></section>';
 }
 
 peView=function(){
