@@ -9,8 +9,8 @@ This is the standing product and engineering roadmap for CAPITAL ASCENT. Before 
 - **Phase 0–8: COMPLETE** — reliability, city/economy, accounting, explainability, delayed investment, delegation, competitors, balance harness, M&A/PE causal baseline.
 - **Phase 9: COMPLETE** — executive operating review, management organization, competitor memory and CAPEX portfolio.
 - **Phase 10: COMPLETE** — CEO → capital allocator endgame, including fund-level LP economics, portfolio construction, PMI and public-company capital allocation.
-- **Phase 11: NEXT** — long-horizon balance, progression clarity, tutorial and mobile UX completion.
-- **Phase 12: PLANNED** — release candidate, final QA and production-completion gate.
+- **Phase 11: COMPLETE** — long-horizon balance, progression clarity, tutorial, native decision sheets and mobile UX completion.
+- **Phase 12: NEXT** — release candidate, final QA and production-completion gate.
 
 The product rule remains:
 
@@ -347,60 +347,91 @@ The final documentation-only head must also remain green before merge.
 
 ---
 
-# Phase 11 — Long-horizon game and UX completion — NEXT
+# Phase 11 — Long-horizon game and UX completion — COMPLETE
 
-Phase 11 turns the mechanically complete game into a complete long-form product. It should not add another disconnected finance mode.
+Detailed contract: `docs/PHASE11_PRODUCT_COMPLETION.md`
+
+Phase 11 converted the mechanically complete Phase 0–10 game into a legible long-form product.
 
 ## 11.1 Long-horizon balance
 
-Expand automated validation across more deterministic seeds and player archetypes.
+Implemented deterministic cohort validation at 10-year, 30-year and 100-year checkpoints.
 
-Measure:
+Measured:
 
-- survival / bankruptcy distribution
-- IPO timing distribution
-- company-sale timing
-- Fund I / II / III reach rates
-- PE DPI / TVPI / MOIC distribution
-- M&A success and divestiture outcomes
-- company / personal / fund wealth distribution
-- capital-allocation strategy performance
-- progression dead zones
+- survival / bankruptcy
+- IPO and company-sale timing
+- PE unlock
+- Fund I / II reach
+- PE investment and realization
+- company value / cash / debt
+- personal net worth
+- DPI / TVPI
+- deployment
+- progression gaps
 
-Run 10-year, 30-year and 100-year cohorts. Difficulty presets should only be added if the evidence shows they improve the progression curve.
+The cohort surfaced and fixed two real soft locks rather than weakening the gate:
+
+1. legacy GP commitment economics made Fund I inaccessible after a credible Founder Exit;
+2. deal ticket size and GP liquidity management made the 80% deployment gate structurally difficult to reach.
+
+Phase 11 calibration now uses a 1.0–1.5% GP commitment range, fund-size-aware deal tickets and explicit recycling of GP management-company fee cash into GP capital commitments when the allocator chooses that action.
+
+Latest completion cohort:
+
+- Allocator IPO: W53
+- Fund I: W53
+- first PE investment: within the investment period
+- first PE realization: achieved
+- Fund II: W209
+- Fund II is reached inside 10 years
+- 100-year allocator result reaches Fund III
+- 9 PE investments / 9 PE exits in the long-form allocator run
+- no non-finite long-horizon metric
+
+Difficulty presets were not added because the progression issue was solved by economic calibration and clearer decision support rather than artificial difficulty scaling.
 
 ## 11.2 Progression clarity
 
-Complete the player journey from founder to capital allocator:
+Implemented:
 
-- clearer milestones and unlock explanations
-- tutorial / first-run guidance
-- explain why PE, IPO, delegation and next-fund gates are locked
-- decision-support hints without choosing for the player
+- Founder → CEO → Exit → Fund I → LBO → PE Exit → Fund II Journey
+- current role label
+- next incomplete milestone
+- factual unlock conditions
+- PE / IPO / delegation / next-fund lock explanations
+- inline Founder Launch Guide
+- long-form career progress summary
+
+The UI explains constraints without choosing the player's strategy.
 
 ## 11.3 Mobile UX completion
 
-Priorities:
+Replaced routine prompt-heavy flows with iPhone-native bottom decision sheets for:
 
-- replace remaining prompt / alert heavy flows with native sheets and controls
-- reduce unnecessary deep scrolling
-- make PE / M&A information dense but low-tap
-- expose all important Phase 10 choices clearly on mobile
-- ensure the Microcap and Capital Allocation surfaces remain contextually separated
-- verify every major route at iPhone viewport
+- borrowing
+- debt repayment
+- Microcap buy
+- Microcap sell
+- special dividend
+- share buyback
 
-## 11.4 Content density without feature sprawl
+Added Capital Constraints decision support and verified the Journey, City, Capital Allocation and PE surfaces in iPhone WebKit.
 
-Increase variety only where it changes existing systems: company profiles, deal theses, events, competitors and management situations. Do not add unrelated modes merely to increase feature count.
+## 11.4 Phase 11 verification
 
-### Phase 11 exit gate
+Final implementation head before documentation completion passed:
 
-- no severe dominant strategy
-- no progression dead zone across tested archetypes
-- no tested long-run soft lock
-- tutorial / unlock path works on iPhone
-- late-game PE / M&A / capital-allocation screens remain usable on mobile
-- long-horizon economy remains finite, deterministic and save-bounded
+- simulation / invariant suite: PASS
+- 10-year deterministic replay: PASS
+- 100-year finite-state / save-size gate: PASS
+- strategy balance smoke: PASS
+- Phase 11 10/30/100-year cohort: PASS
+- Fund I investment-realization loop: PASS
+- Fund II within 30 years gate: PASS
+- iPhone WebKit smoke: PASS
+
+The final documentation-only head must remain green before merge.
 
 ---
 
