@@ -196,3 +196,57 @@ test('player feedback UX exposes plain PE terms and real-estate entry on iPhone'
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
+
+
+test('staged PE fundraising, single entry hub and portfolio turnaround work on iPhone',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  await page.goto('./');
+  await page.locator('[data-act="start"]').click();
+
+  await page.locator('nav [data-tab="operations"]').click();
+  await expect(page.locator('.m22-business-entry')).toHaveCount(0);
+  const entryIds=await page.locator('[data-add-business]').evaluateAll(els=>els.map(el=>el.dataset.addBusiness));
+  expect(entryIds.length).toBeGreaterThan(0);
+  expect(new Set(entryIds).size).toBe(entryIds.length);
+
+  const gymStores=await page.evaluate(()=>{
+    state.company.cash=500_000_000;
+    while(state.company.stores.filter(x=>x.businessID==='ramen').length<3)openStore('ramen');
+    addBusiness('gym');
+    setManagementCapitalBudget('gym',100_000_000);
+    setManagementReviewCadence('gym','weekly');
+    setExpansionMandate('gym','aggressive');
+    applyDelegatedPolicies(state);
+    save();render();
+    return state.company.stores.filter(x=>x.businessID==='gym').length;
+  });
+  expect(gymStores).toBe(1);
+
+  await page.evaluate(()=>{
+    state.pe.unlocked=true;
+    state.personal.cash=2_000_000_000;
+    state.pe.lpTrust=95;
+    state.pe.network=95;
+    tab='pe';render();
+  });
+  await expect(page.getByRole('heading',{name:'第1号ファンド 資金調達'})).toBeVisible();
+  await expect(page.locator('[data-m23-gp-commit]')).toBeVisible();
+  await page.locator('[data-m23-gp-commit]').fill('100000000');
+  await page.locator('[data-m23-start-fundraise]').click();
+  await expect(page.locator('.m23-stage-track span.active')).toHaveText('Pre-Marketing');
+  await expect(page.locator('[data-m23-solicit]').first()).toBeVisible();
+
+  await page.evaluate(()=>{
+    state.pe.fundraising=null;
+    if(!state.pe.funds.length)raiseFund();
+    const f=state.pe.funds[0];
+    f.cash=500_000_000;
+    state.pe.portfolio=[{id:'mobile-turn',name:'モバイル再建社',businessID:'ramen',fundId:f.id,status:'held',entryWeek:1,age:60,entryValue:1_000_000_000,value:1_000_000_000,enterpriseValue:1_000_000_000,equityInvested:300_000_000,fundCostBasis:300_000_000,debt:600_000_000,leverage:.6,entryMultiple:10,ebitda:100_000_000,quality:45,risk:75,margin:.10,organicGrowth:.01,cyclicality:50,thesis:'Turnaround',improvement:0,cash:20_000_000,initiatives:[]}];
+    tab='pe';save();render();
+  });
+  await expect(page.locator('[data-m23-turnaround="mobile-turn"]')).toBeVisible();
+  await page.locator('[data-m23-turnaround="mobile-turn"]').click();
+  await expect(page.getByText(/再建中/).first()).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});

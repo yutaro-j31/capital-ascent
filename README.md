@@ -41,12 +41,13 @@
 
 ### PE Fund
 - Founder Exit後にPE解禁
-- Fund commitments / GP commitment / LP commitment
+- Fund commitments / player-defined GP commitment / multiple LP commitments
+- Institutional fundraising: Pre-Marketing → DDQ → Anchor LP → First Close → Final Close
 - Capital Call / Paid-in / Uncalled
 - Management Fee / GP Management Company
 - DD / Quality / Risk / leverage / entry multiple
 - Portfolio Construction / Investment Committee
-- Value Creation initiatives
+- Value Creation initiatives / 26-week Turnaround program
 - EBITDA成長 / downside / debt paydown
 - Exit / preferred return / carry
 - NAV / DPI / TVPI / deployment
@@ -116,6 +117,9 @@ CIでは以下をrelease gateとして確認します。
 - `16-phase9-management.js` — management depth
 - `17-phase10-capital-allocator.js` — fund economics / PMI / capital allocation
 - `18-phase11-product-completion.js` — progression clarity / mobile decision UX
+- `21-management-ownership-deepening.js` — delegated operations / CXO / ownership controls
+- `22-player-feedback-depth.js` — plain-language PE and player-feedback UX
+- `23-pe-fundraising-turnaround.js` — staged multi-LP fundraising / auto-expansion fix / portfolio turnaround
 - `tools/release-candidate-audit.cjs` — Phase 12 release audit
 
 開発上のsource of truthは `AGENTS.md` と `docs/DEVELOPMENT_ROADMAP.md` です。
