@@ -296,4 +296,4 @@ bind=function(){
   document.querySelectorAll('[data-m24-company-ma-fund]').forEach(function(el){el.onclick=function(){m24TransferFundPortfolioToCompany(el.dataset.m24CompanyMaFund);};});
 };
 
-if(state){ensureM24State(state);save();render();}
+if(state){ensureM24State(state);if(state.pe&&state.pe.unlocked&&state.pe.funds&&state.pe.funds.length)generatePeDeals(state);save();render();}
