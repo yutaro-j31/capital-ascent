@@ -10,6 +10,7 @@ function count(text,needle){
 test('operations hub renders each business entry action once and removes the duplicate lower panel',()=>{
   const r=createRuntime(),a=r.api;
   a.fresh('ENTRY HUB','ramen','東京');
+  a.eval('selectedBusiness=null; selectedMapBusiness=null; selectedStoreDetail=null;');
   const html=a.operationsHtml();
   assert.equal(count(html,'data-add-business="realEstateAgency"'),1);
   assert.equal(count(html,'data-add-business="gym"'),1);
