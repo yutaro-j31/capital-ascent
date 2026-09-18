@@ -170,7 +170,7 @@ test('player feedback UX exposes plain PE terms and real-estate entry on iPhone'
   await expect(realEstateButton).toBeVisible();
   await expect(realEstateButton).toContainText('75万円');
   await realEstateButton.click();
-  await expect(page.getByRole('heading',{name:'不動産仲介'})).toBeVisible();
+  await expect(page.locator('.screen-head h1')).toHaveText('不動産仲介');
 
   await page.evaluate(()=>{
     state.pe.unlocked=true;
@@ -180,8 +180,8 @@ test('player feedback UX exposes plain PE terms and real-estate entry on iPhone'
   });
   await expect(page.getByText('PE運営会社の利益')).toBeVisible();
   await expect(page.getByText('外部投資家（LP）')).toBeVisible();
-  await expect(page.getByText('回収済倍率',{exact:true})).toBeVisible();
-  await expect(page.getByText('案件ネットワーク')).toBeVisible();
+  await expect(page.locator('.m22-fund-grid small').filter({hasText:'回収済倍率'}).first()).toBeVisible();
+  await expect(page.locator('.m22-explainer .label').filter({hasText:'案件ネットワーク'}).first()).toBeVisible();
 
   await page.evaluate(()=>{
     tab='operations';selectedBusiness='ramen';
