@@ -75,7 +75,9 @@ function snapshot(a,m){
     personalNetWorth:a.personalNetWorth(),public:s.company.public,peUnlocked:s.pe.unlocked,
     highestFund:(s.pe.funds||[]).reduce(function(x,f){return Math.max(x,Number(f.number)||0);},0),
     peDeals:(s.pe.portfolio||[]).length,peExits:(s.pe.portfolio||[]).filter(function(p){return p.status==='exited';}).length,
-    dpi:fm?fm.dpi:0,tvpi:fm?fm.tvpi:0,journey:j.completed,milestones:Object.assign({},m)
+    dpi:fm?fm.dpi:0,tvpi:fm?fm.tvpi:0,deployment:fm?fm.deployment:0,paidIn:fm?fm.paidIn:0,distributed:fm?fm.distributed:0,
+    invested:fund?Number(fund.invested)||0:0,fees:fund?Number(fund.managementFeesPaid)||0:0,lpTrust:Number(s.pe.lpTrust)||0,
+    fundGate:a.fundGate(),journey:j.completed,milestones:Object.assign({},m)
   };
 }
 
