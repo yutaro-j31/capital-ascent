@@ -321,12 +321,12 @@ function m21IpoPreview(pct){
   const v=companyValue(state),owner=clamp(Number(state.company.founderOwnership)||1,0,1),p=clamp(Number(pct)||0,0,.30),primaryRate=.10;
   return {value:v,secondaryPct:p,secondary:v*owner*p,primary:v*primaryRate,ownership:owner*(1-p)/(1+primaryRate)};
 }
-function executeIpoSalePct(pct){
+function executeIpoSalePct(salePct){
   ensureM21State(state);
   if(state.company.public){alert('この会社はすでに上場済みです。');return false;}
   const v=companyValue(state);
   if(v<80000000||state.company.lastWeekProfit<=0){alert('IPOには企業価値8,000万円以上かつ直近黒字が必要です。');return false;}
-  const x=m21IpoPreview(pct);
+  const x=m21IpoPreview(salePct);
   state.company.public=true;
   state.company.founderOwnership=x.ownership;
   state.personal.cash+=x.secondary;
