@@ -6,7 +6,8 @@
     "test": "node --test tests/*.test.cjs",
     "balance": "node tools/balance-sim.cjs",
     "test:mobile": "playwright test",
-    "cohort": "node tools/phase11-cohort.cjs"
+    "cohort": "node tools/phase11-cohort.cjs",
+    "release:audit": "node tools/release-candidate-audit.cjs"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0"
