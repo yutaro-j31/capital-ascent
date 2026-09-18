@@ -1,6 +1,6 @@
 # CAPITAL ASCENT — Phase 12 Release Candidate
 
-Status: implementation on phase12-release-candidate
+Status: COMPLETE — publication verification required on merged main
 
 Phase 12 is the product-completion gate. It adds no new gameplay mode.
 
@@ -41,3 +41,30 @@ The accounting audit explicitly checks:
 ## Completion
 
 After every Phase 12 gate is green on the final main SHA and the published Pages build, CAPITAL ASCENT can be labeled the first formal completed release.
+
+
+## Release-candidate completion evidence
+
+The clean-start release audit passed without injecting extra company cash.
+
+Observed deterministic milestones:
+
+- IPO: W196
+- PE unlock: W196
+- Fund I: W196
+- first PE acquisition: W222
+- first PE realization: W326
+- Fund II: W339
+
+Release-audit snapshot:
+
+- final week: 339
+- company value: approximately ¥241.1m
+- personal net worth: approximately ¥416.3m
+- schema version: 2
+- exported save: 476,422 bytes
+- validation errors: 0
+
+The same implementation head passed simulation/invariants, strategy balance, Phase 11 long-horizon cohort and the expanded iPhone WebKit route audit.
+
+Formal publication completion additionally requires the merged main SHA to pass Game CI, GitHub Pages deploy and Published iPhone WebKit smoke.
