@@ -238,10 +238,20 @@ addBusiness=function(id){
   log(PILLARS[id].name+'事業へ参入。準備資金 '+yen(cost)+'。','major');save();return true;
 };
 
+function m22BusinessEntryPanel(){
+  const rows=Object.entries(PILLARS).filter(function(entry){return !state.company.businesses[entry[0]];}).map(function(entry){
+    const id=entry[0],p=entry[1],cost=id==='productVentures'?2500000:750000;
+    return '<div class="m22-entry-row"><div><b>'+p.icon+' '+p.name+'</b><span>'+p.desc+'</span></div><button class="btn primary" data-add-business="'+id+'">参入 · '+yen(cost)+'</button></div>';
+  }).join('');
+  if(!rows)return '';
+  return '<section class="card m22-business-entry"><div class="section-row"><div><h2>新規事業へ参入</h2><p class="sub">現在の事業を見ながら、別事業にも直接参入できます。</p></div></div><div class="m22-entry-list">'+rows+'</div></section>';
+}
 operations=function(){
   let html=_m22Operations();
   if(!selectedBusiness){
     html=html.replace('data-add-business="realEstateAgency">参入</button>','data-add-business="realEstateAgency">参入 · 75万円</button>');
+  }else if(!selectedMapBusiness&&!selectedStoreDetail){
+    html=injectBeforeMainClose(html,m22BusinessEntryPanel());
   }
   return html;
 };
