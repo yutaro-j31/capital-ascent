@@ -190,7 +190,7 @@ const JA_UI_PAIRS=[
 
 function jaUiText(html){
   let out=String(html||'');
-  for(const pair of JA_UI_PAIRS)out=out.split(pair[0]).join(pair[1]);
+  for(const pair of JA_UI_PAIRS.slice().sort(function(a,b){return b[0].length-a[0].length;}))out=out.split(pair[0]).join(pair[1]);
   out=out
     .replace(/\b(\d+) business units\b/g,'$1事業')
     .replace(/\b(\d+) locations\b/g,'$1拠点')
