@@ -1,0 +1,28 @@
+:root{
+  --cc-bg:#090d11;--cc-panel:#0f151b;--cc-panel2:#131b22;--cc-line:#25303a;
+  --cc-text:#f2f5f6;--cc-muted:#8f9aa4;--cc-gold:#d6a35f;--cc-gold2:#f0c27b;
+}
+body{background:radial-gradient(circle at 50% -10%,#18222c 0,#0a0e13 42%,#07090c 100%)}
+.cc-main{max-width:1040px;padding:12px 12px 130px}
+.cc-hero{position:relative;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:18px;padding:20px;border:1px solid #2a3641;border-radius:20px;background:
+  radial-gradient(circle at 82% 12%,rgba(214,163,95,.19),transparent 24%),
+  linear-gradient(145deg,#111820 0,#0c1117 58%,#11161b 100%);box-shadow:0 18px 48px rgba(0,0,0,.3)}
+.cc-hero:after{content:"";position:absolute;right:-36px;top:-48px;width:200px;height:200px;border:1px solid rgba(214,163,95,.12);border-radius:50%;box-shadow:0 0 0 26px rgba(214,163,95,.025),0 0 0 52px rgba(214,163,95,.018)}
+.cc-hero-copy{position:relative;z-index:1}.cc-brandline{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.cc-brandline span{font-family:Georgia,serif;letter-spacing:.16em;font-size:12px;color:#f6ead9}.cc-brandline i{font-style:normal;font-size:8px;letter-spacing:.2em;color:#76818b}
+.cc-period{position:absolute;right:0;top:0;text-align:right}.cc-period b{display:block;font-size:11px;letter-spacing:.12em}.cc-period small{display:block;color:var(--cc-gold2);font-size:9px;margin-top:3px}
+.cc-hero h1{font-family:Georgia,serif;font-size:27px;line-height:1.05;margin:30px 0 7px;color:#fff;font-weight:500}.cc-hero p{margin:0;max-width:560px;color:#aab4bd;font-size:11px;line-height:1.55}
+.cc-companyline{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:16px}.cc-companyline span{font-size:11px;font-weight:800}.cc-companyline em{font-style:normal;font-size:9px;color:#7e8993}
+.cc-hero-value{position:relative;z-index:1;align-self:end;text-align:right;min-width:160px}.cc-hero-value small{display:block;color:#89949e;font-size:8px;letter-spacing:.13em}.cc-hero-value b{display:block;font-size:25px;margin:5px 0 4px;font-variant-numeric:tabular-nums}.cc-hero-value span{font-size:9px}
+.cc-quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}.cc-quick-actions button{min-height:58px;text-align:left;border:1px solid #26313b;border-radius:13px;background:linear-gradient(180deg,#111820,#0c1116);padding:10px;color:#e7edf1}.cc-quick-actions span{display:block;color:var(--cc-gold);font-weight:900;font-size:9px;letter-spacing:.12em}.cc-quick-actions b{display:block;font-size:10px;margin-top:5px}
+.cc-layout{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:10px}.cc-panel{grid-column:span 6;background:linear-gradient(180deg,#10171e,#0b1116);border:1px solid #26313a;border-radius:16px;padding:13px;box-shadow:0 10px 28px rgba(0,0,0,.16)}.cc-panel:nth-child(2),.cc-panel:nth-child(5){grid-column:span 12}
+.cc-panel-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.cc-panel-head span,.cc-section-title span{display:block;font-size:8px;letter-spacing:.15em;color:var(--cc-gold)}.cc-panel-head h2,.cc-section-title h2{font-size:14px;margin:3px 0 0}.cc-panel-head i{font-style:normal;font-size:8px;color:#69c18c;border:1px solid #315a43;border-radius:999px;padding:3px 6px}
+.cc-placeholder-body{min-height:92px;margin-top:11px;display:flex;flex-direction:column;justify-content:center;border:1px dashed #283540;border-radius:12px;padding:13px;background:#0b1015}.cc-placeholder-body b{font-size:11px;color:#d7dee4}.cc-placeholder-body small{font-size:9px;color:#77838e;margin-top:5px;line-height:1.45}
+.cc-board-papers{margin-top:12px}.cc-section-title{padding:4px 2px 8px}
+.cc-main .p11-tutorial,.cc-main .p11-journey,.cc-main .roadmap-card{background:linear-gradient(180deg,#10171d,#0b1116);border-color:#26313a}
+.cc-main .p11-eyebrow{color:var(--cc-gold)}
+@media(max-width:640px){
+  .cc-main{padding:9px 9px 122px}
+  .cc-hero{grid-template-columns:1fr;padding:15px}.cc-hero-value{text-align:left;min-width:0}.cc-period{position:static;text-align:left;margin-top:11px}.cc-hero h1{margin-top:17px;font-size:24px}
+  .cc-quick-actions{grid-template-columns:repeat(2,1fr)}
+  .cc-panel,.cc-panel:nth-child(2),.cc-panel:nth-child(5){grid-column:span 12}
+}
