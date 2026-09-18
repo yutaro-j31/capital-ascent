@@ -61,7 +61,7 @@ function runCleanStartPath(maxWeeks=520){
     operate(a,turn);allocate(a,turn);
     const step=Math.min(13,maxWeeks-a.get().week);if(step<=0)break;
     a.simulate(step);turn++;capture(a,m);
-    assert.deepEqual(a.validate(),[]);
+    assert.equal(a.validate().length,0);
   }
   const s=a.get();finite(s);
   assert.equal(s.gameOver,false,'clean-start RC path must survive');
@@ -82,7 +82,7 @@ function auditSaveRoundTrip(source){
   target.api.fresh('IMPORT TARGET','ramen','大阪');
   const result=target.api.importText(text);
   assert.equal(result.ok,true,'exported save must import');
-  assert.deepEqual(target.api.validate(),[]);
+  assert.equal(target.api.validate().length,0);
   assert.equal(target.api.get().schemaVersion,2);
 
   const legacy=JSON.parse(text);delete legacy.schemaVersion;delete legacy.progression;
@@ -127,7 +127,7 @@ function auditMoneyBuckets(){
   assert.equal(s.personal.cash,beforeMA.personal,'corporate M&A must not use personal cash');
   assert.equal(f.cash,beforeMA.fund,'corporate M&A must not use PE-fund cash');
   assert.ok(s.company.cash<=beforeMA.company,'corporate M&A must use company cash only');
-  assert.deepEqual(a.validate(),[]);
+  assert.equal(a.validate().length,0);
 }
 
 function main(){
