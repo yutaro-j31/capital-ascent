@@ -34,7 +34,8 @@ function allocatorAction(r,turn){
     a.raiseFund();
     return;
   }
-  const activeFund=s.pe.funds.slice(-1)[0];
+  if((s.pe.managementCompanyCash||0)>2000000&&turn%2===0)a.eval('distributeManagementCompanyCash()');
+  const activeFund=a.get().pe.funds.slice(-1)[0];
   const gpRemaining=Math.max(0,(activeFund.gpCommit||0)-(activeFund.gpContributed||0));
   const liquidityNeed=Math.min(gpRemaining,Math.max(15000000,(activeFund.commitments||0)*.012));
   if(s.company.public&&s.personal.cash<liquidityNeed&&turn%2===0)a.dividend();
