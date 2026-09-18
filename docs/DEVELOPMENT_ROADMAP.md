@@ -30,6 +30,21 @@ Player testing identified that mechanical depth was not sufficiently legible or 
 
 These are post-release depth improvements; they must preserve the Phase 0–12 determinism, accounting, save and long-horizon release gates.
 
+## Post-release workstream — PE Fundraising / Delegated Expansion / Turnaround
+
+Implemented after the Phase 12 release candidate in response to player feedback:
+
+- Business-entry UI exposes one entry action per inactive business; the duplicate lower entry panel is removed.
+- Auto-expansion is an explicit mandate independent from price/advertising delegation and can open the first location of a newly entered non-product business.
+- Fundraising adopts the institutional sequence used by the `pe-firm-tycoon` project: Pre-Marketing → DDQ → Anchor LP → First Close → Final Close.
+- The founder chooses the GP commitment amount before fundraising instead of accepting a fixed personal commitment.
+- Multiple LP prospects are represented separately with relationship, ticket, commitment and optional anchor side-letter state.
+- Fund accounting remains isolated: GP capital comes from personal cash, LP capital enters only the PE-fund bucket, and the initial capital call remains explicit.
+- Portfolio companies gain a deterministic 26-week Turnaround program funded by the PE fund. Turnaround capital is included in deal cost basis and changes quality, risk, margin, growth and EBITDA at completion.
+- CAPITAL ASCENT keeps its own mobile UI and save/accounting architecture; only the PE operating-system concepts are adapted from `pe-firm-tycoon`.
+
+Verification must cover first-store auto-expansion for a non-ramen business, player-selected GP commitment, at least two named LP commitments, capital-call accounting, turnaround completion and iPhone WebKit surfaces.
+
 ## Post-release UI workstream — CEO Command Center
 
 Completed in three post-release PRs:
