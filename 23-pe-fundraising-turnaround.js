@@ -357,9 +357,25 @@ function m23RemoveEntryPanel(html){
   }
   return html;
 }
+function m23PrimaryEntryRow(id,p){
+  const cost=id==='productVentures'?2500000:750000;
+  return '<div class="business-row inactive"><div class="business-icon">'+p.icon+'</div><div class="business-main"><b>'+p.name+'</b><span>'+p.desc+'</span></div><div class="business-numbers"><button class="btn primary" data-add-business="'+id+'">参入 · '+yen(cost)+'</button></div></div>';
+}
+function m23EnsurePrimaryEntryRows(html){
+  if(selectedBusiness||selectedMapBusiness||selectedStoreDetail)return html;
+  const missing=Object.entries(PILLARS).filter(function(entry){
+    const id=entry[0];
+    return !state.company.businesses[id]&&!html.includes('data-add-business="'+id+'"');
+  }).map(function(entry){return m23PrimaryEntryRow(entry[0],entry[1]);}).join('');
+  if(!missing)return html;
+  const close='</div></main>',at=html.lastIndexOf(close);
+  if(at<0)return html;
+  return html.slice(0,at)+missing+html.slice(at);
+}
 operations=function(){
   let html=_m23Operations();
   html=m23RemoveEntryPanel(html);
+  html=m23EnsurePrimaryEntryRows(html);
   html=html.replace('data-add-business="realEstateAgency">参入</button>','data-add-business="realEstateAgency">参入 · 75万円</button>');
   return html;
 };
