@@ -12,6 +12,24 @@ This is the standing product and engineering roadmap for CAPITAL ASCENT. Before 
 - **Phase 11: COMPLETE** — long-horizon balance, progression clarity, tutorial, native decision sheets and mobile UX completion.
 - **Phase 12: COMPLETE** — release candidate, final QA and production-completion gate. Phase 0–12 now defines the first formal completed release.
 
+
+
+## Post-release gameplay deepening — Management & Ownership
+
+Player testing identified that mechanical depth was not sufficiently legible or controllable. The completed workstream therefore establishes these product rules:
+
+- Management policies must explain their concrete price, advertising and expansion posture.
+- Delegation must show the current delegation state and organization tier.
+- Autonomy and review cadence must have visible, real simulation consequences.
+- Delegated managers may be authorized to open stores automatically, but only after evaluating operating margin, site quality, liquidity and explicit investment authority.
+- Manager operating budget and per-investment authority must be player-editable.
+- COO / CFO / CMO / CSO / CIO are real accountable executives with deterministic candidates, compensation and functional effects.
+- IPO must let the founder choose the secondary-sale percentage and preview personal proceeds, company financing, ownership and public float before execution.
+- A company lifecycle may be sold only once. Public-company sale proceeds must reflect only the founder stake still owned.
+- PE must explain the full operating loop from fund formation through DD, LBO, value creation, exit, DPI/TVPI and successor-fund eligibility.
+
+These are post-release depth improvements; they must preserve the Phase 0–12 determinism, accounting, save and long-horizon release gates.
+
 ## Post-release UI workstream — CEO Command Center
 
 Completed in three post-release PRs:
