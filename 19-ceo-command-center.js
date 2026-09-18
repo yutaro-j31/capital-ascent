@@ -57,7 +57,7 @@ function ccInboxItems(){
   const project=(state.projects||[]).filter(function(p){return p.status==='in_progress';}).sort(function(a,b){return a.completeWeek-b.completeWeek;})[0];
   if(project)push(project.completeWeek-state.week<=4?2:1,'CAPEX',(PILLARS[project.targetId]&&PILLARS[project.targetId].name||project.targetId)+' '+String(project.kind).toUpperCase()+' W'+project.completeWeek+'完了','残り '+Math.max(0,project.completeWeek-state.week)+'週。','operations',project.targetId);
   const events=typeof activeEvents==='function'?activeEvents(state):[];
-  if(events.length)push(2,'MACRO',eventLabel?eventLabel(events[0].type):events[0].type,'W'+events[0].endWeek+'まで業績へ影響。','operations');
+  if(events.length)push(2,'MACRO',typeof eventLabel==='function'?eventLabel(events[0].type):events[0].type,'W'+events[0].endWeek+'まで業績へ影響。','operations');
   if(!state.company.public&&companyValue(state)>=80000000&&state.company.lastWeekProfit>0)push(2,'CAPITAL','IPO条件を達成','資本市場からIPOを実行できます。','market');
   if(state.pe&&state.pe.unlocked){
     const open=(state.pe.deals||[]).filter(function(d){return d.status==='open';}).length;
