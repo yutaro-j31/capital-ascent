@@ -59,7 +59,7 @@ function createRuntime(){
       allocation:()=>capitalAllocationSnapshot(state),dividend:()=>paySpecialDividend(),buyback:()=>executeBuyback(),
       journey:()=>phase11Journey(state),unlocks:()=>phase11UnlockReasons(state),tutorial:()=>phase11TutorialSteps(state),
       borrowNative:(amt)=>{phase11ExecuteBorrow(amt);return true;},repayNative:(amt)=>{phase11ExecuteRepay(amt);return true;},
-      compact:()=>compactStateForSave(state),exportText:()=>exportSaveText(),
+      compact:()=>compactStateForSave(state),exportText:()=>exportSaveText(),importText:(text)=>importSaveText(text),
       eval:(code)=>eval(code)
     };
   `,context);
