@@ -107,7 +107,7 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
 
   await page.locator('nav [data-tab="pe"]').click();
   await expect(page.getByText('F1 ファンド収益')).toBeVisible();
-  await expect(page.getByRole('heading',{name:/案件一覧/})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'投資候補案件'})).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="legacy"]').click();
@@ -152,8 +152,8 @@ test('management and ownership deepening UX works on iPhone',async({page})=>{
 
   await page.locator('nav [data-tab="pe"]').click();
   await expect(page.getByText('PEファームの進め方')).toBeVisible();
-  await expect(page.getByText('DPI',{exact:true})).toBeVisible();
-  await expect(page.getByText('TVPI',{exact:true})).toBeVisible();
+  await expect(page.locator('.m21-glossary b').filter({hasText:'回収済倍率'}).first()).toBeVisible();
+  await expect(page.locator('.m21-glossary b').filter({hasText:'総合倍率'}).first()).toBeVisible();
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
