@@ -20,7 +20,7 @@ A feature should normally participate in this loop:
 
 Before adding a new system, ask whether an existing system can be made more meaningful by connecting it to other systems.
 
-The Phase 0–11 roadmap baseline has been implemented. Phase 12 is the current release-candidate frontier. Future work should preserve and validate those systems rather than recreating them or adding disconnected breadth.
+The Phase 0–12 roadmap has been implemented as the first formal product baseline. Post-release work should preserve and deepen those systems rather than recreating them or adding disconnected breadth.
 
 ## Engineering rules
 
@@ -53,7 +53,7 @@ Do not weaken or remove tests solely to make a change pass.
 
 Current priorities and completion status are defined in `docs/DEVELOPMENT_ROADMAP.md`.
 
-The Phase 0–11 baseline is complete. The default priority is now Phase 12 release-candidate QA across:
+The Phase 0–12 baseline is complete. The default post-release priority is regression prevention and causal-depth improvement across:
 
 - Management Brief/explainability
 - manager and delegation UX
