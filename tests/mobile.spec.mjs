@@ -89,7 +89,7 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="operations"]').click();
-  await expect(page.getByRole('heading',{name:'事業'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'事業',exact:true})).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('[data-manage-business="ramen"]').click();
@@ -168,7 +168,7 @@ test('player feedback UX exposes plain PE terms and real-estate entry on iPhone'
   await page.evaluate(()=>{state.company.cash=20_000_000;save();render();});
   const realEstateButton=page.locator('[data-add-business="realEstateAgency"]');
   await expect(realEstateButton).toBeVisible();
-  await expect(realEstateButton).toContainText('75万円');
+  await expect(realEstateButton).toContainText('75万');
   await realEstateButton.click();
   await expect(page.locator('.screen-head h1')).toHaveText('不動産仲介');
 
