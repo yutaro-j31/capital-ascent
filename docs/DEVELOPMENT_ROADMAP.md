@@ -12,6 +12,16 @@ This is the standing product and engineering roadmap for CAPITAL ASCENT. Before 
 - **Phase 11: COMPLETE** — long-horizon balance, progression clarity, tutorial, native decision sheets and mobile UX completion.
 - **Phase 12: COMPLETE** — release candidate, final QA and production-completion gate. Phase 0–12 now defines the first formal completed release.
 
+## Post-release UI workstream — CEO Command Center
+
+Completed in three post-release PRs:
+
+- PR1: executive Command Center shell and premium mobile information hierarchy
+- PR2: live Executive Metrics, CEO Inbox and Business Units from existing simulation state
+- PR3: actual Capital Allocation footprint, Board Calendar, executive topbar/navigation and visual polish
+
+Standing UI rule: the player should feel like a CEO reviewing operating signals and allocating capital, not like a user editing unrelated parameters. Command Center values must be derived from the same state used by simulation; no decorative or fabricated KPIs.
+
 The product rule remains:
 
 **Prefer causal depth over feature breadth.**
