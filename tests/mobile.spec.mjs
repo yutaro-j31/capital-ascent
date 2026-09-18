@@ -12,6 +12,9 @@ test('iPhone WebKit covers Phase 11 progression, native sheets and late-game sur
   await expect(page.locator('[data-act="start"]')).toBeVisible();
   await page.locator('[data-act="start"]').click();
   await expect(page.locator('.topbar')).toBeVisible();
+  await expect(page.getByText('CEO Command Center')).toBeVisible();
+  await expect(page.locator('.cc-hero')).toBeVisible();
+  await expect(page.locator('[data-cc-section="inbox"]')).toBeVisible();
   await expect(page.getByText('Founder Launch Guide')).toBeVisible();
   await expect(page.getByText('Progression Journey')).toBeVisible();
 
@@ -61,6 +64,7 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
     save();tab='overview';selectedBusiness=null;render();
   });
 
+  await expect(page.getByText('CEO Command Center')).toBeVisible();
   await expect(page.getByText('Progression Journey')).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
