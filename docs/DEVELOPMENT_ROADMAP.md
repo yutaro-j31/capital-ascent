@@ -45,6 +45,23 @@ Implemented after the Phase 12 release candidate in response to player feedback:
 
 Verification must cover first-store auto-expansion for a non-ramen business, player-selected GP commitment, at least two named LP commitments, capital-call accounting, turnaround completion and iPhone WebKit surfaces.
 
+## Post-release workstream — PE Clarity / Pipeline / Company Transfers
+
+Implemented from live player feedback after staged fundraising shipped:
+
+- LP solicitation may not stop at an unexplained `DDQ待ち` state. Each interested LP exposes an individual DDQ action and a visible response state.
+- Deal sourcing capacity scales with the PE network: Network 0 / 25 / 50 / 75 / 100 corresponds to a 2 / 3 / 4 / 5 / 6-deal active pipeline target.
+- Every PE value-creation action must show its exact fund cash cost and duration before execution. Turnaround shows its deal-specific cost as well.
+- The successor-fund gate must explain all three requirements in plain language: DPI >= 1.20x, deployment >= 80%, LP Trust >= 45, including the current value, remaining gap and the gameplay action that changes the metric.
+- Each fund exposes cash on hand, uncalled commitment, GP-liquidity-constrained callable capital and theoretical investment capacity.
+- A held PE portfolio company can be sold at current fair equity value to the player's operating company and become a corporate subsidiary.
+- The same related-party transfer can be executed for all held portfolio companies in one fund as a fund-level bulk M&A.
+- Related-party transfers preserve accounting boundaries: company cash pays the purchase price; the PE fund records an Exit/distribution; GP economics flow to personal cash under the existing waterfall; target debt remains with the new subsidiary.
+- The related-party transaction is priced from the same marked equity value used by fund NAV rather than an arbitrary transfer price.
+- Long-run PE deal history remains bounded while active pipeline depth is increased.
+
+Verification must include deterministic network-to-pipeline scaling, individual LP DDQ progression, exact cost labels, successor-gate explanations, per-fund liquidity, individual and bulk PE-to-company M&A accounting, and iPhone WebKit coverage.
+
 ## Post-release UI workstream — CEO Command Center
 
 Completed in three post-release PRs:
