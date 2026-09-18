@@ -250,3 +250,59 @@ test('staged PE fundraising, single entry hub and portfolio turnaround work on i
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
+
+
+test('PE clarity pipeline liquidity DDQ and company M&A work on iPhone',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  await page.goto('./');
+  await page.locator('[data-act="start"]').click();
+
+  await page.evaluate(()=>{
+    state.pe.unlocked=true;
+    state.personal.cash=2_000_000_000;
+    state.company.cash=1_000_000_000;
+    state.pe.lpTrust=95;
+    state.pe.network=100;
+    tab='pe';render();
+  });
+
+  await page.locator('[data-m23-gp-commit]').fill('100000000');
+  await page.locator('[data-m23-start-fundraise]').click();
+  const firstSolicit=page.locator('[data-m23-solicit]').first();
+  const lpId=await firstSolicit.getAttribute('data-m23-solicit');
+  await page.evaluate((id)=>{const lp=state.pe.fundraising.lpProspects.find(x=>x.id===id);lp.relationship=98;render();},lpId);
+  await page.locator('[data-m23-solicit="'+lpId+'"]').click();
+  await expect(page.locator('[data-m24-lp-ddq="'+lpId+'"]')).toBeVisible();
+  await page.locator('[data-m24-lp-ddq="'+lpId+'"]').click();
+  await expect(page.locator('.m24-lp-status').filter({hasText:'DDQ通過'}).first()).toBeVisible();
+
+  await page.evaluate(()=>{
+    state.pe.fundraising=null;
+    if(!state.pe.funds.length)raiseFund();
+    const f=state.pe.funds[0];
+    f.cash=500_000_000;
+    state.pe.network=100;
+    state.pe.deals=[];
+    generatePeDeals(state);
+    state.pe.portfolio=[{id:'mobile24',name:'モバイルM&A社',businessID:'ramen',fundId:f.id,status:'held',entryWeek:1,age:80,entryValue:1_000_000_000,value:1_000_000_000,enterpriseValue:1_000_000_000,equityInvested:400_000_000,fundCostBasis:400_000_000,debt:500_000_000,leverage:.5,entryMultiple:8,ebitda:120_000_000,quality:60,risk:45,margin:.15,organicGrowth:.04,cyclicality:40,thesis:'Operational improvement',improvement:20,cash:20_000_000,initiatives:[]}];
+    tab='pe';save();render();
+  });
+
+  await expect(page.locator('.m24-pipeline .pill')).toHaveText('6 / 6件');
+  await expect(page.getByRole('heading',{name:'ファンド別の投資余力'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'次号ファンド解禁条件'})).toBeVisible();
+  await expect(page.locator('[data-improve="cost"][data-port="mobile24"]')).toContainText('2,500万');
+  await expect(page.locator('[data-m23-turnaround="mobile24"]')).toContainText('3,000万');
+  await expect(page.locator('[data-m24-company-ma="mobile24"]')).toContainText('自社へM&A');
+
+  page.once('dialog',dialog=>dialog.accept());
+  await page.locator('[data-m24-company-ma="mobile24"]').click();
+  const transferred=await page.evaluate(()=>({
+    status:state.pe.portfolio.find(x=>x.id==='mobile24').status,
+    subs:state.company.subsidiaryPortfolio.filter(x=>x.sourcePortfolioId==='mobile24').length
+  }));
+  expect(transferred.status).toBe('exited');
+  expect(transferred.subs).toBe(1);
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
