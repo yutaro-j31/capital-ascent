@@ -29,3 +29,6 @@
   .m22-sub-value{grid-template-columns:1fr 1fr}
   .m22-money-flow{gap:4px}
 }
+
+.m22-business-entry{margin-top:12px}.m22-entry-list{display:grid;gap:7px}.m22-entry-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px;border:1px solid #26323b;border-radius:10px;background:#0c1217}.m22-entry-row b{display:block;font-size:10px}.m22-entry-row span{display:block;font-size:8px;color:#83909a;line-height:1.4;margin-top:3px}.m22-entry-row .btn{flex:0 0 auto}
+@media(max-width:640px){.m22-entry-row{align-items:flex-start}.m22-entry-row .btn{font-size:8px}}
