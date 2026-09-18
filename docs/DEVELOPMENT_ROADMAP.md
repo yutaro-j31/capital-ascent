@@ -1,6 +1,6 @@
 # CAPITAL ASCENT — Development Roadmap
 
-Last audited: 2026-09-17
+Last audited: 2026-09-18
 
 This is the standing product and engineering roadmap for CAPITAL ASCENT. Before substantial work, always verify the actual repository state, `AGENTS.md`, this roadmap, relevant implementation files, tests and CI. Repository state overrides stale chat summaries.
 
@@ -10,7 +10,7 @@ This is the standing product and engineering roadmap for CAPITAL ASCENT. Before 
 - **Phase 9: COMPLETE** — executive operating review, management organization, competitor memory and CAPEX portfolio.
 - **Phase 10: COMPLETE** — CEO → capital allocator endgame, including fund-level LP economics, portfolio construction, PMI and public-company capital allocation.
 - **Phase 11: COMPLETE** — long-horizon balance, progression clarity, tutorial, native decision sheets and mobile UX completion.
-- **Phase 12: NEXT** — release candidate, final QA and production-completion gate.
+- **Phase 12: COMPLETE** — release candidate, final QA and production-completion gate. Phase 0–12 now defines the first formal completed release.
 
 The product rule remains:
 
@@ -435,9 +435,27 @@ The final documentation-only head must remain green before merge.
 
 ---
 
-# Phase 12 — Release Candidate / final QA — PLANNED
+# Phase 12 — Release Candidate / final QA — COMPLETE
 
 Phase 12 is the product-completion gate.
+
+Detailed contract: `docs/PHASE12_RELEASE_CANDIDATE.md`
+
+Completion evidence from the Phase 12 release-candidate branch:
+
+- clean start with no company-cash injection
+- IPO: W196
+- PE unlock / Fund I: W196
+- first PE acquisition: W222
+- first PE realization: W326
+- Fund II: W339
+- final release-audit save: 476,422 bytes
+- validation errors: 0
+- simulation / invariants: PASS
+- strategy balance: PASS
+- Phase 11 10/30/100-year cohort: PASS
+- Phase 12 release audit: PASS
+- major-route iPhone WebKit: PASS
 
 Required final verification:
 
@@ -456,7 +474,7 @@ Required final verification:
 - no known blocker or soft lock
 - roadmap and player-facing documentation match shipped behavior
 
-After Phase 12 passes, CAPITAL ASCENT can be treated as the first formal completed release rather than an implementation baseline.
+Phase 12 has passed its release-candidate gates. The merged main SHA must also pass Game CI, GitHub Pages deployment and published iPhone WebKit smoke; after those publication gates are green, CAPITAL ASCENT is the first formal completed release.
 
 ---
 
