@@ -91,11 +91,11 @@ test('PE view exposes the operating sequence and metric explanations',()=>{
   a.eval('state.pe.unlocked=true;');
   const html=a.eval('peView()');
   assert.match(html,/PEファームの進め方/);
-  assert.match(html,/ファンドを組成/);
-  assert.match(html,/DDを実施/);
-  assert.match(html,/DPI/);
-  assert.match(html,/TVPI/);
-  assert.match(html,/LP信頼/);
+  assert.match(html,/ファンドを作る/);
+  assert.match(html,/企業調査をする/);
+  assert.match(html,/回収済倍率/);
+  assert.match(html,/総合倍率/);
+  assert.match(html,/外部投資家/);
 });
 
 test('policy guide explains strategy differences and current delegation status',()=>{

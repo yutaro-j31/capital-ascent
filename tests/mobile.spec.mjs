@@ -89,7 +89,7 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="operations"]').click();
-  await expect(page.getByRole('heading',{name:'事業'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'事業',exact:true})).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('[data-manage-business="ramen"]').click();
@@ -106,8 +106,8 @@ test('Phase 12 iPhone route audit covers overview, operations, market, PE and le
   await expect(page.getByText('資本配分室')).toBeVisible();
 
   await page.locator('nav [data-tab="pe"]').click();
-  await expect(page.getByText('F1 ファンド収益')).toBeVisible();
-  await expect(page.getByRole('heading',{name:/案件一覧/})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'第1号ファンド 収益'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'投資候補案件'})).toBeVisible();
   await expectNoHorizontalOverflow(page);
 
   await page.locator('nav [data-tab="legacy"]').click();
@@ -152,8 +152,47 @@ test('management and ownership deepening UX works on iPhone',async({page})=>{
 
   await page.locator('nav [data-tab="pe"]').click();
   await expect(page.getByText('PEファームの進め方')).toBeVisible();
-  await expect(page.getByText('DPI',{exact:true})).toBeVisible();
-  await expect(page.getByText('TVPI',{exact:true})).toBeVisible();
+  await expect(page.locator('.m21-glossary b').filter({hasText:'回収済倍率'}).first()).toBeVisible();
+  await expect(page.locator('.m21-glossary b').filter({hasText:'総合倍率'}).first()).toBeVisible();
+  await expectNoHorizontalOverflow(page);
+  expect(errors).toEqual([]);
+});
+
+
+test('player feedback UX exposes plain PE terms and real-estate entry on iPhone',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  await page.goto('./');
+  await page.locator('[data-act="start"]').click();
+
+  await page.locator('nav [data-tab="operations"]').click();
+  await page.evaluate(()=>{state.company.cash=20_000_000;save();render();});
+  const realEstateButton=page.locator('[data-add-business="realEstateAgency"]');
+  await expect(realEstateButton).toBeVisible();
+  await expect(realEstateButton).toContainText('75万');
+  await realEstateButton.click();
+  await expect(page.locator('.screen-head h1')).toHaveText('不動産仲介');
+
+  await page.evaluate(()=>{
+    state.pe.unlocked=true;
+    state.personal.cash=1_000_000_000;
+    if(!state.pe.funds.length)raiseFund();
+    tab='pe';render();
+  });
+  await expect(page.getByText('PE運営会社の利益')).toBeVisible();
+  await expect(page.getByText('外部投資家（LP）')).toBeVisible();
+  await expect(page.locator('.m22-fund-grid small').filter({hasText:'回収済倍率'}).first()).toBeVisible();
+  await expect(page.locator('.m22-explainer .label').filter({hasText:'案件ネットワーク'}).first()).toBeVisible();
+
+  await page.evaluate(()=>{
+    tab='operations';selectedBusiness='ramen';
+    state.company.cash=500_000_000;
+    while(state.company.stores.filter(x=>x.businessID==='ramen').length<3)openStore('ramen');
+    const c=m21CandidateRows(state,'COO')[0];
+    if(!state.management.executives.COO)hireExecutive('COO',c.id);
+    render();
+  });
+  await expect(page.getByText('CXOへ設備投資判断を委任')).toBeVisible();
+  await expect(page.locator('[data-m22-capex-role="ramen"]')).toBeVisible();
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
