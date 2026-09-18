@@ -40,3 +40,24 @@ body{background:radial-gradient(circle at 50% -10%,#18222c 0,#0a0e13 42%,#07090c
   .cc-inbox-row{grid-template-columns:8px 70px minmax(0,1fr) 12px;gap:7px}.cc-inbox-row em{font-size:7px;padding:3px 5px}
   .cc-business-row{grid-template-columns:32px minmax(0,1fr) auto 12px}.cc-business-row>.cc-spark{display:none}.cc-business-value b{font-size:9px}
 }
+
+.cc-topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;background:rgba(8,12,16,.96);border-bottom-color:#26313b;padding-top:calc(8px + env(safe-area-inset-top))}
+.cc-topbar-brand{min-width:0}.cc-topbar-brand b{display:block;font-family:Georgia,serif;font-size:13px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.cc-topbar-brand span{display:block;color:#7e8993;font-size:8px;letter-spacing:.13em;margin-top:2px}
+.cc-nav{background:rgba(7,10,13,.97);border-top-color:#28343e}.cc-nav button{color:#808c96}.cc-nav button.active{background:linear-gradient(180deg,#302518,#1b1712);color:#f0c27b}.cc-nav .ico{font-size:18px}
+.cc-capital-panel,.cc-quarter-panel{grid-column:span 6}.cc-panel-note{margin:8px 0 0;color:#7f8c96;font-size:9px;line-height:1.45}
+.cc-allocation-list{margin-top:10px}.cc-allocation-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:9px;align-items:center;padding:8px 0;border-top:1px solid #202b34}.cc-allocation-row:first-child{border-top:0}.cc-allocation-row>span{color:#d6a35f;font-size:12px}.cc-allocation-row b{display:block;font-size:9px;color:#c8d0d5}.cc-allocation-row>strong{font-size:9px;font-variant-numeric:tabular-nums;color:#e7ecef}.cc-allocation-track{height:5px;background:#1c252d;border-radius:99px;overflow:hidden;margin-top:5px}.cc-allocation-track i{display:block;height:100%;background:linear-gradient(90deg,#a8783f,#e2b36d);border-radius:99px}
+.cc-panel-link{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid #2a3741;background:#10171d;color:#aeb8bf;border-radius:9px;padding:9px 10px;margin-top:10px;font-size:9px;text-align:left}.cc-panel-link b{color:#d6a35f;font-size:15px}
+.cc-calendar-list{margin-top:9px}.cc-calendar-row{width:100%;display:grid;grid-template-columns:48px 52px minmax(0,1fr) 12px;gap:8px;align-items:center;border:0;border-top:1px solid #202b34;background:transparent;color:#edf2f5;padding:9px 1px;text-align:left}.cc-calendar-row:first-child{border-top:0}.cc-calendar-row time{display:block;border:1px solid #2d3943;border-radius:8px;background:#141b21;padding:5px;text-align:center}.cc-calendar-row time b{display:block;font-size:9px}.cc-calendar-row time small{display:block;color:#d5a25f;font-size:7px;margin-top:2px}.cc-calendar-row em{justify-self:start;font-style:normal;color:#d6a35f;font-size:7px;font-weight:900;letter-spacing:.08em}.cc-calendar-row div>b{display:block;font-size:10px}.cc-calendar-row div>small{display:block;color:#82909a;font-size:8px;line-height:1.35;margin-top:3px}.cc-calendar-row>strong{color:#687681;font-size:16px}
+.cc-summit{position:relative;overflow:hidden;display:flex;justify-content:space-between;gap:14px;align-items:end;margin:12px 0;padding:18px;border:1px solid #3a3a30;border-radius:16px;background:
+  linear-gradient(120deg,rgba(6,10,13,.15),rgba(7,9,11,.86)),
+  radial-gradient(ellipse at 68% 120%,rgba(214,163,95,.34),transparent 28%),
+  linear-gradient(150deg,#17212a,#0c1116 60%,#18150f);box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.cc-summit:before,.cc-summit:after{content:"";position:absolute;bottom:-18px;right:16%;width:180px;height:95px;background:#202931;clip-path:polygon(50% 0,100% 100%,0 100%);opacity:.82}.cc-summit:after{right:-2%;width:140px;height:70px;background:#2b302d;opacity:.68}
+.cc-summit>div,.cc-summit>button{position:relative;z-index:1}.cc-summit span{display:block;color:#d6a35f;font-size:8px;letter-spacing:.18em}.cc-summit b{display:block;max-width:540px;font-family:Georgia,serif;font-size:15px;font-weight:500;line-height:1.35;margin-top:5px}.cc-summit small{display:block;color:#7f8b94;font-size:8px;margin-top:6px}.cc-summit button{border:0;background:transparent;color:#e1b56e;font-size:10px;white-space:nowrap}
+.cc-main .p11-tutorial,.cc-main .p11-journey{box-shadow:none}
+@media(max-width:640px){
+  .cc-topbar{padding-left:9px;padding-right:9px}.cc-topbar-brand span{font-size:7px}
+  .cc-capital-panel,.cc-quarter-panel{grid-column:span 12}
+  .cc-calendar-row{grid-template-columns:44px 44px minmax(0,1fr) 10px;gap:6px}
+  .cc-summit{align-items:flex-start;flex-direction:column;padding:15px}.cc-summit button{padding:0}
+}
