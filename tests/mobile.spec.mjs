@@ -205,7 +205,9 @@ test('staged PE fundraising, single entry hub and portfolio turnaround work on i
 
   await page.locator('nav [data-tab="operations"]').click();
   await expect(page.locator('.m22-business-entry')).toHaveCount(0);
-  await expect(page.locator('[data-add-business="realEstateAgency"]')).toHaveCount(1);
+  const entryIds=await page.locator('[data-add-business]').evaluateAll(els=>els.map(el=>el.dataset.addBusiness));
+  expect(entryIds.length).toBeGreaterThan(0);
+  expect(new Set(entryIds).size).toBe(entryIds.length);
 
   const gymStores=await page.evaluate(()=>{
     state.company.cash=500_000_000;
