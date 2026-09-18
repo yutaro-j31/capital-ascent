@@ -233,7 +233,7 @@ test('staged PE fundraising, single entry hub and portfolio turnaround work on i
   await expect(page.locator('[data-m23-gp-commit]')).toBeVisible();
   await page.locator('[data-m23-gp-commit]').fill('100000000');
   await page.locator('[data-m23-start-fundraise]').click();
-  await expect(page.getByText('Pre-Marketing',{exact:true})).toBeVisible();
+  await expect(page.locator('.m23-stage-track span.active')).toHaveText('Pre-Marketing');
   await expect(page.locator('[data-m23-solicit]').first()).toBeVisible();
 
   await page.evaluate(()=>{
