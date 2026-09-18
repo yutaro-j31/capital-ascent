@@ -239,6 +239,11 @@ operations=function(){
 
 bind=function(){
   _m22Bind();
+  document.querySelectorAll('nav [data-tab="operations"]').forEach(function(el){el.onclick=function(){
+    tab='operations';selectedBusiness=null;selectedMapBusiness=null;selectedStoreDetail=null;
+    if(typeof selectedCityEntity!=='undefined')selectedCityEntity=null;
+    render();
+  };});
   document.querySelectorAll('[data-m22-capex-role]').forEach(function(el){el.onchange=function(){setM22CapexDelegateRole(el.dataset.m22CapexRole,el.value);};});
   document.querySelectorAll('[data-add-business]').forEach(function(el){el.onclick=function(){
     const id=el.dataset.addBusiness;
