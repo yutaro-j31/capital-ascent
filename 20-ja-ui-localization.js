@@ -39,7 +39,6 @@ const JA_UI_PAIRS=[
   ['UNITS','部門'],
   ['locations','拠点'],
   ['weekly profit','週次利益'],
-  ['manual','手動'],
   ['13W','13週'],
   ['Quarter Advance','四半期進行'],
   ['OPS','事業'],
@@ -149,7 +148,6 @@ const JA_UI_PAIRS=[
   ['Equity MOIC','自己資本MOIC'],
   ['Save Safety','セーブ保護'],
   ['Projects','プロジェクト'],
-  ['active','進行中'],
   ['Phase 10 — Fund Economics','ファンド運営'],
   ['Fund Economics','ファンド収益'],
   ['Commitment','出資約束額'],
@@ -192,6 +190,8 @@ function jaUiText(html){
   let out=String(html||'');
   for(const pair of JA_UI_PAIRS.slice().sort(function(a,b){return b[0].length-a[0].length;}))out=out.split(pair[0]).join(pair[1]);
   out=out
+    .replace(/>manual</g,'>手動<')
+    .replace(/>active</g,'>進行中<')
     .replace(/\b(\d+) business units\b/g,'$1事業')
     .replace(/\b(\d+) locations\b/g,'$1拠点')
     .replace(/\b(\d+) UNITS\b/g,'$1部門')
