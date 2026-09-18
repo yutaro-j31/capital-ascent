@@ -1,5 +1,7 @@
 # CAPITAL ASCENT
 
+**Release baseline: v1.0.0 / Phase 0–12 product-complete**
+
 日本を舞台に、小さな事業の創業から企業成長、IPO・M&A、公開市場投資、PEファンド運営、資本配分までを週次で進めるブラウザ経営シミュレーションです。
 
 ## ゲームの進行
