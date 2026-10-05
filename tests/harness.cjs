@@ -60,6 +60,7 @@ function createRuntime(){
       dd:id=>ddDeal(id),acquirePe:id=>acquireDeal(id),improvePe:(id,k)=>improvePortfolio(id,k),exitPe:id=>exitPortfolio(id),
       raiseFund:()=>raiseFund(),fundMetrics:id=>fundMetrics(state.pe.funds.find(f=>f.id===id)||currentFund(),state),fundGate:()=>nextFundEligibility(state),callFund:(id,amt,reason)=>callFundCapital(state.pe.funds.find(f=>f.id===id),amt,reason),
       allocation:()=>capitalAllocationSnapshot(state),dividend:()=>paySpecialDividend(),buyback:()=>executeBuyback(),
+      ngInvestVC:(id,amount)=>ngInvestVC(id,amount),ngExitVC:id=>ngExitVC(id),
       ipoPct:p=>executeIpoSalePct(p),sellCompany:()=>sellCompany(),
       addBusiness:id=>addBusiness(id),formatYen:n=>yen(n),peHtml:()=>peView(),marketHtml:()=>market(),operationsHtml:()=>operations(),
       fundraiseStart:(target,gp)=>m23StartFundraising(target,gp),fundraiseSolicit:id=>m23SolicitLP(id),fundraiseDdq:()=>m23RunDdq(),
