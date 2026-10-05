@@ -235,3 +235,6 @@ test('NG1 received procurement converts company cash into inventory asset withou
 
 
 test('NG1 inventory COGS is recognized in profit but not paid twice in company cash',()=>{const r=createRuntime(),a=r.api;a.fresh('COGSBRIDGE','ramen','東京');a.eval("state.company.cash=1e9;const st=state.company.stores[0];ng1EnsureStore(state,st);state.supplyChain.inventory[st.id].units=100000;state.supplyChain.inventory[st.id].assetValue=100000*PILLARS.ramen.unitCost;state.supplyChain.orders=[];");const before=a.get().company.cash;a.eval("processCompanyWeek(state)");const s=a.get();assert.ok(Number.isFinite(s.company.cash));assert.ok(Number.isFinite(s.company.lastWeekProfit));assert.equal(s.supplyChain._weeklyInventoryExpense,0);assert.ok(s.company.cash>before-5e7);});
+
+
+test('NG1 default staffed payroll preserves legacy store wage envelope',()=>{const r=createRuntime(),a=r.api;a.fresh('WAGECAL','ramen','東京');a.eval("const st=state.company.stores[0];ng1EnsureStore(state,st);");const s=a.get(),st=s.company.stores[0];assert.ok(Math.abs(st.workforce.assigned*st.workforce.wageWeekly-52500)<1);});
