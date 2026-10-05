@@ -151,3 +151,26 @@ test('Phase 9 capex is constrained by management capacity and has delayed comple
   r.api.simulate(7);let s=plain(r.api.get());const p=s.projects.find(x=>x.scope==='capex');const preCompletionBrand=s.company.businesses.ramen.brand;assert.equal(p.status,'in_progress');
   r.api.simulate(1);s=plain(r.api.get());assert.ok(s.company.businesses.ramen.brand>preCompletionBrand);assert.equal(s.projects.find(x=>x.scope==='capex').status,'completed');
 });
+
+
+test('NG-0 migrates legacy saves into next-generation foundations',()=>{
+  const r=createRuntime();const s=plain(r.api.fresh('NG MIGRATION'));
+  assert.equal(s.schemaVersion,3);
+  assert.ok(Array.isArray(s.ledger));assert.ok(Array.isArray(s.organization.employees));
+  assert.ok(Array.isArray(s.supplyChain.orders));assert.ok(Array.isArray(s.publicUniverse.companies));
+  assert.equal(r.api.validate().length,0);
+});
+
+test('NG-0 transaction journal rejects unbalanced transfers and stays deterministic',()=>{
+  const a=createRuntime(),b=createRuntime();a.api.fresh('LEDGER');b.api.fresh('LEDGER');
+  const entries=[{entity:'company',account:'cash',amount:-1000},{entity:'supplier',account:'receivable',amount:1000}];
+  const ta=plain(a.api.recordTx('supplier_payment',entries,{supplier:'A'}));
+  const tb=plain(b.api.recordTx('supplier_payment',entries,{supplier:'A'}));
+  assert.deepEqual(ta,tb);assert.throws(()=>a.api.recordTx('bad',[{entity:'company',amount:-1}]));
+});
+
+test('NG-0 deterministic choice uses stable scoring and tie break',()=>{
+  const a=createRuntime(),b=createRuntime();a.api.fresh('AI');b.api.fresh('AI');
+  const rows=[{id:'a',utility:10},{id:'b',utility:10},{id:'c',utility:9}];
+  assert.deepEqual(plain(a.api.choose('quarter:1',rows,'utility')),plain(b.api.choose('quarter:1',rows,'utility')));
+});
