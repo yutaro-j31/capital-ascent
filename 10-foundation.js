@@ -1,7 +1,7 @@
 'use strict';
 
 // Roadmap Phase 0: durable state, migrations, backups and invariant helpers.
-const SAVE_SCHEMA_VERSION = 3;
+const SAVE_SCHEMA_VERSION = 2;
 const SAVE_BACKUP_1 = `${SAVE_KEY}_backup_1`;
 const SAVE_BACKUP_2 = `${SAVE_KEY}_backup_2`;
 
