@@ -45,3 +45,30 @@ const _ng1LegacyRunStore=runStore;
 runStore=function(s,store){ng1EnsureStore(s,store);return ng1StoreEconomics(s,store,_ng1LegacyRunStore(s,store));};
 const _ng1LegacyProcessCompanyWeek=processCompanyWeek;
 processCompanyWeek=function(s){ng1BeforeCompanyWeek(s);const cashBefore=s.company.cash,result=_ng1LegacyProcessCompanyWeek(s),inventoryExpense=Number(s.supplyChain._weeklyInventoryExpense)||0;if(inventoryExpense>0){s.company.cash+=inventoryExpense;if(typeof recordTransaction==='function')recordTransaction('inventory_expense_recognition',[{entity:'company',account:'cogs',amount:-inventoryExpense},{entity:'company',account:'inventory_asset',amount:inventoryExpense}],{week:s.week});}s.supplyChain._weeklyInventoryExpense=0;return result;};
+
+// NG-1 player-facing store management panel.
+
+const _ng1OperationsUI=operations;
+operations=function(){
+  let html=_ng1OperationsUI();
+  if(!selectedBusiness)return html;
+  ng1EnsureAll(state);
+  const stores=(state.company.stores||[]).filter(x=>x.businessID===selectedBusiness);
+  if(!stores.length)return html;
+  const rows=stores.map(function(store){
+    const active=(state.organization&&state.organization.employees||[]).filter(e=>e.storeId===store.id&&e.status==='active');
+    const inv=state.supplyChain&&state.supplyChain.inventory&&state.supplyChain.inventory[store.id],suppliers=(state.supplyChain&&state.supplyChain.suppliers||[]).filter(x=>x.businessID===store.businessID),staff=store.workforce||{},payroll=active.reduce((a,e)=>a+(Number(e.wageWeekly)||0),0);
+    const employees=active.map(e=>'<div class="store-card"><div><b>'+(e.role==='manager'?'Manager':'Staff')+' · Skill '+Math.round(e.skill||0)+'</b><span>研修 '+Math.round(e.training||0)+' · Morale '+Math.round(e.morale||0)+' · '+yen(e.wageWeekly||0)+'/週</span></div><div class="actions"><button class="btn" data-ng1-train="'+e.id+'">研修</button><button class="btn danger" data-ng1-terminate="'+e.id+'">退職</button></div></div>').join('');
+    const supply=NG1_STOCKED_BUSINESSES.has(store.businessID)?'<div class="kpis"><div class="kpi"><div class="label">在庫</div><div class="value">'+Math.round(inv&&inv.units||0).toLocaleString()+'</div></div><div class="kpi"><div class="label">欠品累計</div><div class="value">'+Math.round(inv&&inv.stockouts||0).toLocaleString()+'</div></div><div class="kpi"><div class="label">在庫資産</div><div class="value">'+yen(inv&&inv.assetValue||0)+'</div></div></div><div class="control"><div><div class="name">仕入先</div><div class="desc">価格・配送速度・信頼性のトレードオフ</div></div><select data-ng1-supplier="'+store.id+'">'+suppliers.map(x=>'<option value="'+x.id+'" '+(store.supplierId===x.id?'selected':'')+'>'+x.name+' · 原価'+Math.round(x.costIndex*100)+'% · '+x.leadWeeks+'週 · 信頼'+Math.round(x.reliability*100)+'%</option>').join('')+'</select></div>':'';
+    return '<section class="card"><div class="section-row"><div><h2>'+store.name+' オペレーション</h2><p class="sub">'+store.region+' · 必要'+(staff.required||0)+'名 / 配置'+active.length+'名 · 給与'+yen(payroll)+'/週</p></div><button class="btn primary" data-ng1-hire="'+store.id+'">＋ 採用</button></div>'+supply+'<div class="store-list">'+(employees||'<p class="sub">配置中の従業員はいません。</p>')+'</div></section>';
+  }).join('');
+  return injectBeforeMainClose(html,'<div class="grid roadmap-grid">'+rows+'</div>');
+};
+const _ng1BindUI=bind;
+bind=function(){
+  _ng1BindUI();
+  document.querySelectorAll('[data-ng1-hire]').forEach(el=>el.onclick=()=>{ng1HireEmployee(el.dataset.ng1Hire);save();render();});
+  document.querySelectorAll('[data-ng1-train]').forEach(el=>el.onclick=()=>{ng1TrainEmployee(el.dataset.ng1Train);save();render();});
+  document.querySelectorAll('[data-ng1-terminate]').forEach(el=>el.onclick=()=>{ng1TerminateEmployee(el.dataset.ng1Terminate);save();render();});
+  document.querySelectorAll('[data-ng1-supplier]').forEach(el=>el.onchange=()=>{ng1SelectSupplier(el.dataset.ng1Supplier,el.value);save();render();});
+};
