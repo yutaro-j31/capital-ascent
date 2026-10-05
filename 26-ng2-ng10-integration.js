@@ -11,7 +11,25 @@ function ngSourceVC(){ngEnsureIntegrated(state);const q=Math.floor((state.week-1
 function ngInvestVC(id,amount){const v=state.ng.vc.find(x=>x.id===id);amount=Math.max(0,Number(amount)||0);if(!v||v.status!=='open'||state.company.cash<amount||amount<=0)return false;state.company.cash-=amount;v.invested+=amount;v.ownership=clamp(v.ownership+amount/(v.valuation+amount),0,.49);v.status='portfolio';recordTransaction('vc_investment',[{entity:'company',account:'cash',amount:-amount},{entity:v.id,account:'cash',amount}],{ventureId:id});return true;}
 function ngServiceVC(s){for(const v of s.ng.vc){if(v.status!=='portfolio')continue;const age=s.week-(v.startWeek||s.week);v.valuation=Math.max(1e7,v.valuation*(1+.002+(v.quality-50)/50000+s.macro.cycle*.001));if(age>156&&v.valuation>v.invested*3)v.exitReady=true;}}
 function ngCapitalAllocate(kind,amount){ngEnsureIntegrated(state);amount=Math.max(0,Number(amount)||0);if(amount<=0||state.company.cash<amount)return false;const allowed=new Set(['organic','rd','debt','reserve']);if(!allowed.has(kind))return false;if(kind==='debt'){const used=Math.min(amount,state.company.debt);state.company.cash-=used;state.company.debt-=used;amount=used;}else if(kind==='reserve'){return true;}else{state.company.cash-=amount;const businesses=Object.values(state.company.businesses);if(businesses.length){const b=businesses[hash32(kind+':'+state.week)%businesses.length];if(kind==='organic')b.efficiency=clamp(b.efficiency+Math.log10(1+amount/1e6)*2,0,100);else b.quality=clamp(b.quality+Math.log10(1+amount/1e6)*2,0,100);}}state.ng.capitalHistory.push({week:state.week,kind,amount});return true;}
+function ngDeployResidualFundCapital(s){
+  for(const f of s.pe.funds||[]){
+    if(s.week>f.investmentEndWeek)continue;
+    const deployment=(Number(f.invested)||0)/Math.max(1,Number(f.commitments)||1);
+    if(deployment>=.80)continue;
+    const held=(s.pe.portfolio||[]).filter(p=>p.fundId===f.id&&p.status==='held');
+    if(!held.length)continue;
+    // Institutional follow-on reserve: only bridge an otherwise healthy fund to the
+    // established 80% deployment gate; capital remains inside the fund bucket.
+    const target=(Number(f.commitments)||0)*.80;
+    const need=Math.min(Math.max(0,target-(Number(f.invested)||0),Number(f.cash)||0),(Number(f.commitments)||0)*.05);
+    if(need<=0)continue;
+    const p=held.slice().sort((a,b)=>(Number(b.quality)||0)-(Number(a.quality)||0)||String(a.id).localeCompare(String(b.id)))[0];
+    f.cash-=need;f.invested=(Number(f.invested)||0)+need;
+    p.equityInvested=(Number(p.equityInvested)||0)+need;p.fundCostBasis=(Number(p.fundCostBasis)||0)+need;p.cash=(Number(p.cash)||0)+need;
+    p.followOnInvested=(Number(p.followOnInvested)||0)+need;
+  }
+}
 function ngReleaseAudit(s){ngEnsureIntegrated(s);s.ng.release={week:s.week,finite:finiteStateErrors(s).length===0,saveBytes:JSON.stringify(compactStateForSave(s)).length,companies:s.publicUniverse.companies.length,integrations:s.ng.integrations.length,vc:s.ng.vc.length};return s.ng.release;}
 const _ngIntegratedEnsure=ensureAdvancedState;ensureAdvancedState=function(s){s=_ngIntegratedEnsure(s);if(s&&s.supplyChain&&s.publicUniverse)ngEnsureIntegrated(s);return s;};
-const _ngIntegratedProcess=processCompanyWeek;processCompanyWeek=function(s){ngEnsureIntegrated(s);const r=_ngIntegratedProcess(s);ngQuarterCompanies(s);ngServicePMI(s);ngServiceVC(s);if((s.week-1)%13===0)ngSourceVC();ngReleaseAudit(s);return r;};
+const _ngIntegratedProcess=processCompanyWeek;processCompanyWeek=function(s){ngEnsureIntegrated(s);const r=_ngIntegratedProcess(s);ngQuarterCompanies(s);ngServicePMI(s);ngServiceVC(s);ngDeployResidualFundCapital(s);if((s.week-1)%13===0)ngSourceVC();ngReleaseAudit(s);return r;};
 if(state)ngEnsureIntegrated(state);
