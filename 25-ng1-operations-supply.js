@@ -2,13 +2,13 @@
 
 // NG-1 — people, inventory and supply-chain economics.
 const NG1_STOCKED_BUSINESSES=new Set(['ramen','conveni']);
-function ng1StoreProfile(id){return id==='conveni'?{staff:4,wage:48750,cover:2.2,waste:.018}:{staff:3,wage:52500,cover:1.6,waste:.008};}
+function ng1StoreProfile(id){const staff=id==='conveni'?4:3,totalWage=PILLARS[id]?.wage||0;return id==='conveni'?{staff,wage:totalWage/staff,cover:2.2,waste:.018}:{staff,wage:totalWage/staff,cover:1.6,waste:.008};}
 function ng1EnsureStore(s,store){
   ensureAdvancedState(s);const p=ng1StoreProfile(store.businessID);
   if(!store.workforce)store.workforce={required:p.staff,assigned:p.staff,wageWeekly:p.wage,training:50,morale:60};
   if(!Number.isFinite(store.workforce.required))store.workforce.required=p.staff;
   if(!Number.isFinite(store.workforce.assigned))store.workforce.assigned=p.staff;
-  if(!Number.isFinite(store.workforce.wageWeekly))store.workforce.wageWeekly=p.wage;
+  if(!Number.isFinite(store.workforce.wageWeekly))store.workforce.wageWeekly=p.wage;else if(!store.workforce.wageUnitMigrated&&store.workforce.wageWeekly>p.wage*1.5)store.workforce.wageWeekly=store.workforce.wageWeekly/Math.max(1,store.workforce.required);store.workforce.wageUnitMigrated=true;
   if(NG1_STOCKED_BUSINESSES.has(store.businessID)){
     const key=store.id;if(!s.supplyChain.inventory[key]){const units=Math.ceil((PILLARS[store.businessID].baseDemand||100)*p.cover),uc=PILLARS[store.businessID].unitCost;s.supplyChain.inventory[key]={units,waste:0,stockouts:0,assetValue:units*uc};}else if(!Number.isFinite(s.supplyChain.inventory[key].assetValue))s.supplyChain.inventory[key].assetValue=s.supplyChain.inventory[key].units*PILLARS[store.businessID].unitCost;
     if(!s.supplyChain.suppliers.some(x=>x.businessID===store.businessID))s.supplyChain.suppliers.push({id:'supplier_'+store.businessID,businessID:store.businessID,name:PILLARS[store.businessID].name+'標準仕入先',costIndex:1,reliability:.94,leadWeeks:1});
