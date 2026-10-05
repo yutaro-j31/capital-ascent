@@ -219,3 +219,6 @@ test('NG VC startup keeps one company identity from seed investment through IPO 
 
 
 test('NG company universe compaction preserves active VC company references',()=>{const r=createRuntime(),a=r.api;a.fresh('BOUNDVC','ramen','東京');a.eval("state.company.cash=1e12;for(let i=0;i<200;i++){state.week=i*13+1;const v=ngSourceVC();if(v&&i===199)ngInvestVC(v.id,10000000);if(v&&i<199){v.status='exited';const c=state.publicUniverse.companies.find(x=>x.id===v.universeCompanyId);if(c){c.status='listed';c.public=true;c.ipoWeek=state.week;}}}ngBoundCompanyUniverse(state);");const s=a.get(),active=s.ng.vc.find(v=>v.status==='portfolio');assert.ok(s.publicUniverse.companies.length<=180);assert.ok(active);assert.ok(s.publicUniverse.companies.some(c=>c.id===active.universeCompanyId));});
+
+
+test('NG universe compaction archives stale uninvested startups while preserving history',()=>{const r=createRuntime(),a=r.api;a.fresh('ARCHIVEVC','ramen','東京');a.eval("for(let i=0;i<190;i++){state.week=i*13+1;ngSourceVC();}ngBoundCompanyUniverse(state);");const s=a.get();assert.ok(s.publicUniverse.companies.length<=180);const archived=s.ng.vc.filter(v=>v.companyArchive);assert.ok(archived.length>0);assert.ok(archived.every(v=>v.status==='passed'));assert.ok(archived.every(v=>v.companyArchive.id===v.universeCompanyId));});
