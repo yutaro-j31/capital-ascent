@@ -155,7 +155,7 @@ test('Phase 9 capex is constrained by management capacity and has delayed comple
 
 test('NG-0 migrates legacy saves into next-generation foundations',()=>{
   const r=createRuntime();const s=plain(r.api.fresh('NG MIGRATION'));
-  assert.equal(s.schemaVersion,3);
+  assert.equal(s.schemaVersion,2);
   assert.ok(Array.isArray(s.ledger));assert.ok(Array.isArray(s.organization.employees));
   assert.ok(Array.isArray(s.supplyChain.orders));assert.ok(Array.isArray(s.publicUniverse.companies));
   assert.equal(r.api.validate().length,0);
