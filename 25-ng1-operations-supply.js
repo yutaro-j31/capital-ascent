@@ -23,3 +23,9 @@ function ng1ConsumeStock(s,store,demandUnits){if(!NG1_STOCKED_BUSINESSES.has(sto
 function ng1BeforeCompanyWeek(s){ng1EnsureAll(s);ng1ReceiveOrders(s);for(const store of s.company.stores)ng1OrderForStore(s,store);}
 function ng1StoreEconomics(s,store,result){ng1EnsureStore(s,store);const factor=ng1StaffFactor(store);if(store.businessID==='gym'||store.businessID==='realEstateAgency')return {...result,revenue:result.revenue*factor,cost:result.cost,units:Math.round(result.units*factor)};if(!NG1_STOCKED_BUSINESSES.has(store.businessID))return result;const desired=Math.max(0,Math.round(result.units*factor));const stock=ng1ConsumeStock(s,store,desired);const price=store.priceOverride||s.company.businesses[store.businessID].price;const oldVariable=result.units?Math.max(0,result.units*PILLARS[store.businessID].unitCost):0;return {revenue:stock.sold*price,cost:Math.max(0,result.cost-oldVariable)+stock.cogs+stock.wasteCost,units:stock.sold};}
 function ng1SetStaff(storeId,assigned){const store=state.company.stores.find(x=>x.id===storeId);if(!store)return false;ng1EnsureStore(state,store);store.workforce.assigned=clamp(Math.floor(Number(assigned)||0),0,store.workforce.required*2);return true;}
+
+// Attach NG-1 to the authoritative weekly/store paths without duplicating cash mutation.
+const _ng1LegacyRunStore=runStore;
+runStore=function(s,store){ng1EnsureStore(s,store);return ng1StoreEconomics(s,store,_ng1LegacyRunStore(s,store));};
+const _ng1LegacyProcessCompanyWeek=processCompanyWeek;
+processCompanyWeek=function(s){ng1BeforeCompanyWeek(s);return _ng1LegacyProcessCompanyWeek(s);};
