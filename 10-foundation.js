@@ -1,7 +1,7 @@
 'use strict';
 
 // Roadmap Phase 0: durable state, migrations, backups and invariant helpers.
-const SAVE_SCHEMA_VERSION = 2;
+const SAVE_SCHEMA_VERSION = 3;
 const SAVE_BACKUP_1 = `${SAVE_KEY}_backup_1`;
 const SAVE_BACKUP_2 = `${SAVE_KEY}_backup_2`;
 
@@ -23,6 +23,20 @@ function ensureAdvancedState(s){
   s.company.subsidiaries=s.company.subsidiaryPortfolio.length?heldSubsidiaries:Number(s.company.subsidiaries||0);
   s.pe=s.pe||{};
   s.pe.initiatives=Array.isArray(s.pe.initiatives)?s.pe.initiatives:[];
+  // Next Generation schema: additive foundations shared by operations, markets and deals.
+  s.ledger=Array.isArray(s.ledger)?s.ledger:[];
+  s.organization=s.organization||{employees:[],roles:{},payrollWeekly:0};
+  s.organization.employees=Array.isArray(s.organization.employees)?s.organization.employees:[];
+  s.organization.roles=s.organization.roles||{};
+  s.supplyChain=s.supplyChain||{suppliers:[],orders:[],warehouses:[],inventory:{}};
+  s.supplyChain.suppliers=Array.isArray(s.supplyChain.suppliers)?s.supplyChain.suppliers:[];
+  s.supplyChain.orders=Array.isArray(s.supplyChain.orders)?s.supplyChain.orders:[];
+  s.supplyChain.warehouses=Array.isArray(s.supplyChain.warehouses)?s.supplyChain.warehouses:[];
+  s.supplyChain.inventory=s.supplyChain.inventory||{};
+  s.publicUniverse=s.publicUniverse||{companies:[],lastQuarter:0};
+  s.publicUniverse.companies=Array.isArray(s.publicUniverse.companies)?s.publicUniverse.companies:[];
+  s.transactions=s.transactions||{sequence:0};
+  if(!Number.isFinite(s.transactions.sequence))s.transactions.sequence=0;
   s.ui=s.ui||{};
   s.ui.region=s.ui.region||'東京';
   for(const [id,b] of Object.entries(s.company.businesses||{})){
@@ -35,6 +49,8 @@ function ensureAdvancedState(s){
   if(s.history.briefs.length>52)s.history.briefs=s.history.briefs.slice(-52);
   if(s.world.events.length>40)s.world.events=s.world.events.slice(-40);
   if(s.projects.length>120)s.projects=s.projects.slice(-120);
+  if(s.ledger.length>600)s.ledger=s.ledger.slice(-600);
+  if(s.supplyChain.orders.length>160)s.supplyChain.orders=s.supplyChain.orders.slice(-160);
   return s;
 }
 
@@ -63,6 +79,10 @@ function validateState(s){
   if(!Number.isFinite(s.week)||s.week<1)errors.push('week invalid');
   if(!Array.isArray(s.company?.stores))errors.push('company.stores invalid');
   if(!s.pe||!Array.isArray(s.pe.funds))errors.push('pe.funds invalid');
+  if(!Array.isArray(s.ledger))errors.push('ledger invalid');
+  if(!s.organization||!Array.isArray(s.organization.employees))errors.push('organization invalid');
+  if(!s.supplyChain||!Array.isArray(s.supplyChain.orders))errors.push('supplyChain invalid');
+  if(!s.publicUniverse||!Array.isArray(s.publicUniverse.companies))errors.push('publicUniverse invalid');
   return errors.concat(finiteStateErrors(s));
 }
 
@@ -72,6 +92,8 @@ function compactStateForSave(s){
   s.projects=s.projects.filter(p=>p.status!=='completed'||s.week-(p.completedWeek||s.week)<=52);
   if(s.history.companyWeeks.length>260)s.history.companyWeeks=s.history.companyWeeks.slice(-260);
   if(s.history.briefs.length>52)s.history.briefs=s.history.briefs.slice(-52);
+  if(s.ledger.length>600)s.ledger=s.ledger.slice(-600);
+  if(s.supplyChain.orders.length>160)s.supplyChain.orders=s.supplyChain.orders.slice(-160);
   return s;
 }
 
@@ -101,6 +123,29 @@ load=function(){
   }
   return null;
 };
+
+// NG-0: authoritative transaction journal. It records material transfers without
+// becoming a second cash ledger; cash remains authoritative in each subsystem.
+function recordTransaction(kind,entries,meta={}){
+  if(!state)return null;
+  ensureAdvancedState(state);
+  const normalized=(entries||[]).map(e=>({
+    entity:String(e.entity||'company'),account:String(e.account||'cash'),amount:Number(e.amount)||0
+  }));
+  const total=normalized.reduce((a,e)=>a+e.amount,0);
+  if(Math.abs(total)>.01)throw new Error('transaction must balance');
+  const sequence=++state.transactions.sequence;
+  const row={id:'tx_'+state.week+'_'+sequence,week:state.week,sequence,kind:String(kind||'transaction'),entries:normalized,meta};
+  state.ledger.push(row);
+  if(state.ledger.length>600)state.ledger=state.ledger.slice(-600);
+  return row;
+}
+
+function deterministicChoice(key,candidates,scoreFn){
+  if(!Array.isArray(candidates)||!candidates.length)return null;
+  return candidates.map((candidate,index)=>({candidate,index,score:Number(scoreFn(candidate,index))||0,tie:hash32(String(key)+':'+index)}))
+    .sort((a,b)=>b.score-a.score||a.tie-b.tie||a.index-b.index)[0].candidate;
+}
 
 function exportSaveText(){
   if(!state)return '';
