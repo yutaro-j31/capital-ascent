@@ -45,7 +45,7 @@ function createRuntime(){
       get:()=>state,
       snapshot:()=>JSON.stringify(state),
       simulate:(weeks)=>{for(let i=0;i<weeks;i++){if(state.gameOver)break;state.week++;state.year=Math.floor((state.week-1)/52)+1;state.season=Math.floor(((state.week-1)%52)/13)+1;macroStep(state);processCompanyWeek(state);updateMicrocaps(state);generatePeDeals(state);servicePE(state);checkEndings();}return state;},
-      validate:()=>validateState(state),
+      validate:()=>validateState(state),recordTx:(kind,entries,meta)=>recordTransaction(kind,entries,meta),choose:(key,rows,field)=>deterministicChoice(key,rows,x=>x[field]),
       save:()=>save(),load:()=>load(),migrate:x=>migrateState(x),
       companyValue:()=>companyValue(state),personalNetWorth:()=>personalNetWorth(state),
       sites:(id,region)=>propertyCandidates(id,region),pressure:(id,region,p)=>competitionPressureAt(id,region,p),
