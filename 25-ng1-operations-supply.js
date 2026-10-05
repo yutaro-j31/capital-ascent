@@ -17,7 +17,7 @@ function ng1EnsureStore(s,store){
     if(!s.supplyChain.suppliers.some(x=>x.businessID===store.businessID)){
       const n=PILLARS[store.businessID].name;
       s.supplyChain.suppliers.push(
-        {id:'supplier_'+store.businessID,businessID:store.businessID,name:n+'標準仕入先',costIndex:1,reliability:.94,leadWeeks:1,tier:'balanced'},
+        {id:'supplier_'+store.businessID,businessID:store.businessID,name:n+'標準仕入先',costIndex:1,reliability:1,leadWeeks:1,tier:'balanced'},
         {id:'supplier_'+store.businessID+'_value',businessID:store.businessID,name:n+'低価格仕入先',costIndex:.94,reliability:.84,leadWeeks:2,tier:'value'},
         {id:'supplier_'+store.businessID+'_premium',businessID:store.businessID,name:n+'高信頼仕入先',costIndex:1.07,reliability:.99,leadWeeks:1,tier:'premium'}
       );
