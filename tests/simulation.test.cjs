@@ -174,3 +174,25 @@ test('NG-0 deterministic choice uses stable scoring and tie break',()=>{
   const rows=[{id:'a',utility:10},{id:'b',utility:10},{id:'c',utility:9}];
   assert.deepEqual(plain(a.api.choose('quarter:1',rows,'utility')),plain(b.api.choose('quarter:1',rows,'utility')));
 });
+
+
+test('NG-1 initializes workforce suppliers and inventory deterministically',()=>{
+ const a=createRuntime(),b=createRuntime();a.api.fresh('SUPPLY');b.api.fresh('SUPPLY');a.api.ng1Ensure();b.api.ng1Ensure();
+ assert.deepEqual(plain(a.api.get().organization),plain(b.api.get().organization));
+ assert.deepEqual(plain(a.api.get().supplyChain),plain(b.api.get().supplyChain));
+ const store=a.api.get().company.stores[0];assert.ok(store.workforce.required>=1);assert.ok(a.api.get().supplyChain.inventory[store.id].units>0);
+});
+
+test('NG-1 understaffing reduces realized store sales',()=>{
+ const full=createRuntime(),low=createRuntime();full.api.fresh('STAFF');low.api.fresh('STAFF');full.api.ng1Ensure();low.api.ng1Ensure();
+ const id=full.api.get().company.stores[0].id;const id2=low.api.get().company.stores[0].id;
+ full.api.ng1Staff(id,full.api.get().company.stores[0].workforce.required);low.api.ng1Staff(id2,1);
+ full.api.simulate(1);low.api.simulate(1);assert.ok(full.api.get().company.lastWeekRevenue>low.api.get().company.lastWeekRevenue);
+});
+
+test('NG-1 stockouts cap realized unit sales and replenishment orders arrive',()=>{
+ const r=createRuntime();r.api.fresh('STOCK');r.api.ng1Ensure();const store=r.api.get().company.stores[0];
+ r.api.eval('state.supplyChain.inventory[state.company.stores[0].id].units=1;');r.api.simulate(1);
+ assert.ok(r.api.get().supplyChain.inventory[store.id].stockouts>0);assert.ok(r.api.get().supplyChain.orders.length>0);
+ r.api.simulate(2);assert.ok(r.api.get().supplyChain.orders.some(x=>x.status==='received'));
+});
