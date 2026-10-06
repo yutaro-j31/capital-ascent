@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const ROOT=path.resolve(__dirname,'..');
 const RUNTIME_FILES=[
   '01-core.js','02-operations.js','03-markets-pe.js','04-finance.js','05-ui-core.js','06-ui-extra.js',
-  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js','17-phase10-capital-allocator.js','18-phase11-product-completion.js','19-ceo-command-center.js','20-ja-ui-localization.js','21-management-ownership-deepening.js','22-player-feedback-depth.js','23-pe-fundraising-turnaround.js','24-pe-clarity-company-transfer.js'
+  '07-map-flow.js','08-city-world.js','10-foundation.js','11-city-economics.js','12-simulation-depth.js','13-endgame-depth.js','15-balance-calibration.js','14-ui-roadmap.js','16-phase9-management.js','17-phase10-capital-allocator.js','18-phase11-product-completion.js','19-ceo-command-center.js','20-ja-ui-localization.js','21-management-ownership-deepening.js','22-player-feedback-depth.js','23-pe-fundraising-turnaround.js','24-pe-clarity-company-transfer.js','25-ng1-operations-supply.js','26-ng2-ng10-integration.js'
 ];
 
 function createStorage(){
@@ -45,7 +45,7 @@ function createRuntime(){
       get:()=>state,
       snapshot:()=>JSON.stringify(state),
       simulate:(weeks)=>{for(let i=0;i<weeks;i++){if(state.gameOver)break;state.week++;state.year=Math.floor((state.week-1)/52)+1;state.season=Math.floor(((state.week-1)%52)/13)+1;macroStep(state);processCompanyWeek(state);updateMicrocaps(state);generatePeDeals(state);servicePE(state);checkEndings();}return state;},
-      validate:()=>validateState(state),
+      validate:()=>validateState(state),ngAudit:()=>ngReleaseAudit(state),ngBuyStake:(id,p)=>ngBuyStake(id,p),ngTender:(id,p)=>ngTenderOffer(id,p),ngVC:()=>ngSourceVC(),ngInvestVC:(id,a)=>ngInvestVC(id,a),ngAllocate:(k,a)=>ngCapitalAllocate(k,a),ng1Ensure:()=>ng1EnsureAll(state),ng1Order:id=>ng1OrderForStore(state,state.company.stores.find(x=>x.id===id)),ng1Staff:(id,n)=>ng1SetStaff(id,n),ng1Compact:()=>ng1CompactEmployees(state),ng1Run:(store)=>ng1StoreEconomics(state,store,runStore(state,store)),recordTx:(kind,entries,meta)=>recordTransaction(kind,entries,meta),choose:(key,rows,field)=>deterministicChoice(key,rows,x=>x[field]),
       save:()=>save(),load:()=>load(),migrate:x=>migrateState(x),
       companyValue:()=>companyValue(state),personalNetWorth:()=>personalNetWorth(state),
       sites:(id,region)=>propertyCandidates(id,region),pressure:(id,region,p)=>competitionPressureAt(id,region,p),
@@ -60,6 +60,8 @@ function createRuntime(){
       dd:id=>ddDeal(id),acquirePe:id=>acquireDeal(id),improvePe:(id,k)=>improvePortfolio(id,k),exitPe:id=>exitPortfolio(id),
       raiseFund:()=>raiseFund(),fundMetrics:id=>fundMetrics(state.pe.funds.find(f=>f.id===id)||currentFund(),state),fundGate:()=>nextFundEligibility(state),callFund:(id,amt,reason)=>callFundCapital(state.pe.funds.find(f=>f.id===id),amt,reason),
       allocation:()=>capitalAllocationSnapshot(state),dividend:()=>paySpecialDividend(),buyback:()=>executeBuyback(),
+      ngInvestVC:(id,amount)=>ngInvestVC(id,amount),ngExitVC:id=>ngExitVC(id),
+      ngBoundCompanyUniverse:()=>ngBoundCompanyUniverse(state),ngLinkPEUniverse:()=>ngLinkPEUniverse(state),ngSyncPEOwnership:()=>ngSyncPEOwnership(state),ngStartMA:id=>ngStartMA(id),ngRunMADD:id=>ngRunMADD(id),ngArrangeMAFinancing:id=>ngArrangeMAFinancing(id),ngSubmitMABid:id=>ngSubmitMABid(id),ngCloseMA:id=>ngCloseMA(id),
       ipoPct:p=>executeIpoSalePct(p),sellCompany:()=>sellCompany(),
       addBusiness:id=>addBusiness(id),formatYen:n=>yen(n),peHtml:()=>peView(),marketHtml:()=>market(),operationsHtml:()=>operations(),
       fundraiseStart:(target,gp)=>m23StartFundraising(target,gp),fundraiseSolicit:id=>m23SolicitLP(id),fundraiseDdq:()=>m23RunDdq(),

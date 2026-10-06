@@ -32,3 +32,15 @@ main{padding:12px;max-width:940px;margin:0 auto}.screen-head{display:flex;align-
 .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 @media(min-width:760px){.card.half{grid-column:span 6}.card.third{grid-column:span 4}.kpis{grid-template-columns:repeat(4,1fr)}.hub-grid{grid-template-columns:repeat(4,1fr)}.nav{left:50%;transform:translateX(-50%);max-width:680px;border-left:1px solid var(--line);border-right:1px solid var(--line);border-radius:15px 15px 0 0}}
 @media(max-width:560px){.choices,.split{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(3,1fr)}.metric b{font-size:10px}.hub-grid{grid-template-columns:1fr 1fr}.kpis{grid-template-columns:repeat(2,1fr)}.invest-grid{grid-template-columns:1fr 1fr}.control{grid-template-columns:1fr}.control .stepper,.control input,.control select{width:100%;min-width:0}.stepper{grid-template-columns:48px 1fr 48px}.business-row{grid-template-columns:46px 1fr auto}.business-icon{width:46px;height:46px}}
+/* NG-1 mobile containment: controls and long operational labels must shrink inside cards. */
+.card,.control,.store-card,.store-card>div,.section-row,.section-row>div{min-width:0}
+.control select{max-width:100%;box-sizing:border-box}
+.store-card span,.control .desc{overflow-wrap:anywhere}
+@media(max-width:560px){
+  .section-row{flex-wrap:wrap}
+  .section-row>.btn{flex:0 0 auto}
+  .store-card{grid-template-columns:minmax(0,1fr);gap:8px}
+  .store-card .actions{margin-top:0;width:100%}
+  .store-card .actions .btn{flex:1 1 0;min-width:0;padding-left:8px;padding-right:8px}
+  .control select{display:block;width:100%;min-width:0;font-size:10px}
+}

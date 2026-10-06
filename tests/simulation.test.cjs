@@ -151,3 +151,113 @@ test('Phase 9 capex is constrained by management capacity and has delayed comple
   r.api.simulate(7);let s=plain(r.api.get());const p=s.projects.find(x=>x.scope==='capex');const preCompletionBrand=s.company.businesses.ramen.brand;assert.equal(p.status,'in_progress');
   r.api.simulate(1);s=plain(r.api.get());assert.ok(s.company.businesses.ramen.brand>preCompletionBrand);assert.equal(s.projects.find(x=>x.scope==='capex').status,'completed');
 });
+
+
+test('NG-0 migrates legacy saves into next-generation foundations',()=>{
+  const r=createRuntime();const s=plain(r.api.fresh('NG MIGRATION'));
+  assert.equal(s.schemaVersion,2);
+  assert.ok(Array.isArray(s.ledger));assert.ok(Array.isArray(s.organization.employees));
+  assert.ok(Array.isArray(s.supplyChain.orders));assert.ok(Array.isArray(s.publicUniverse.companies));
+  assert.equal(r.api.validate().length,0);
+});
+
+test('NG-0 transaction journal rejects unbalanced transfers and stays deterministic',()=>{
+  const a=createRuntime(),b=createRuntime();a.api.fresh('LEDGER');b.api.fresh('LEDGER');
+  const entries=[{entity:'company',account:'cash',amount:-1000},{entity:'supplier',account:'receivable',amount:1000}];
+  const ta=plain(a.api.recordTx('supplier_payment',entries,{supplier:'A'}));
+  const tb=plain(b.api.recordTx('supplier_payment',entries,{supplier:'A'}));
+  assert.deepEqual(ta,tb);assert.throws(()=>a.api.recordTx('bad',[{entity:'company',amount:-1}]));
+});
+
+test('NG-0 deterministic choice uses stable scoring and tie break',()=>{
+  const a=createRuntime(),b=createRuntime();a.api.fresh('AI');b.api.fresh('AI');
+  const rows=[{id:'a',utility:10},{id:'b',utility:10},{id:'c',utility:9}];
+  assert.deepEqual(plain(a.api.choose('quarter:1',rows,'utility')),plain(b.api.choose('quarter:1',rows,'utility')));
+});
+
+
+test('NG-1 initializes workforce suppliers and inventory deterministically',()=>{
+ const a=createRuntime(),b=createRuntime();a.api.fresh('SUPPLY');b.api.fresh('SUPPLY');a.api.ng1Ensure();b.api.ng1Ensure();
+ assert.deepEqual(plain(a.api.get().organization),plain(b.api.get().organization));
+ assert.deepEqual(plain(a.api.get().supplyChain),plain(b.api.get().supplyChain));
+ const store=a.api.get().company.stores[0];assert.ok(store.workforce.required>=1);assert.ok(a.api.get().supplyChain.inventory[store.id].units>0);
+});
+
+test('NG-1 understaffing reduces realized store sales',()=>{
+ const full=createRuntime(),low=createRuntime();full.api.fresh('STAFF');low.api.fresh('STAFF');full.api.ng1Ensure();low.api.ng1Ensure();
+ const id=full.api.get().company.stores[0].id;const id2=low.api.get().company.stores[0].id;
+ full.api.ng1Staff(id,full.api.get().company.stores[0].workforce.required);low.api.ng1Staff(id2,1);
+ full.api.simulate(1);low.api.simulate(1);assert.ok(full.api.get().company.lastWeekRevenue>low.api.get().company.lastWeekRevenue);
+});
+
+test('NG-1 stockouts cap realized unit sales and replenishment orders arrive',()=>{
+ const r=createRuntime();r.api.fresh('STOCK');r.api.ng1Ensure();const store=r.api.get().company.stores[0];
+ r.api.eval('state.supplyChain.inventory[state.company.stores[0].id].units=1;');r.api.simulate(1);
+ assert.ok(r.api.get().supplyChain.inventory[store.id].stockouts>0);assert.ok(r.api.get().supplyChain.orders.length>0);
+ r.api.simulate(2);assert.ok(r.api.get().supplyChain.orders.some(x=>x.status==='received'));
+});
+
+
+test('NG-2..10 seeds a persistent deterministic public company universe',()=>{const a=createRuntime(),b=createRuntime();a.api.fresh('UNIVERSE');b.api.fresh('UNIVERSE');assert.equal(a.api.get().publicUniverse.companies.length,60);assert.deepEqual(plain(a.api.get().publicUniverse.companies),plain(b.api.get().publicUniverse.companies));a.api.simulate(13);b.api.simulate(13);assert.deepEqual(plain(a.api.get().publicUniverse.companies),plain(b.api.get().publicUniverse.companies));});
+test('NG-4 ownership path supports stake building and tender control without mixing personal cash',()=>{const r=createRuntime();r.api.fresh('CONTROL');r.api.eval('state.company.cash=100000000000;state.personal.cash=1234567;');const id=r.api.get().publicUniverse.companies[0].id;const personal=r.api.get().personal.cash;assert.equal(r.api.ngBuyStake(id,.12),true);assert.equal(r.api.ngTender(id,.51),true);assert.equal(r.api.get().personal.cash,personal);assert.equal(r.api.get().publicUniverse.companies[0].status,'controlled');assert.ok(r.api.get().ng.integrations.length===1);});
+test('NG-5 PMI synergy is delayed rather than instant',()=>{const r=createRuntime();r.api.fresh('PMI');r.api.eval('state.company.cash=100000000000;');const id=r.api.get().publicUniverse.companies[0].id;r.api.ngTender(id,.51);const before=r.api.get().publicUniverse.companies[0].ebitda;r.api.simulate(25);assert.equal(r.api.get().ng.integrations[0].status,'integrating');r.api.simulate(1);assert.equal(r.api.get().ng.integrations[0].status,'integrated');assert.ok(r.api.get().publicUniverse.companies[0].ebitda>before);});
+test('NG-6 VC investment uses company capital and creates ownership',()=>{const r=createRuntime();r.api.fresh('VC');r.api.eval('state.company.cash=1000000000;');const v=r.api.ngVC()||r.api.get().ng.vc[0];assert.ok(v);assert.equal(r.api.ngInvestVC(v.id,10000000),true);const p=r.api.get().ng.vc.find(x=>x.id===v.id);assert.equal(p.status,'portfolio');assert.ok(p.ownership>0);});
+test('NG-8 capital allocation changes the intended company balance-sheet bucket',()=>{const r=createRuntime();r.api.fresh('ALLOC');r.api.eval('state.company.cash=100000000;state.company.debt=20000000;');assert.equal(r.api.ngAllocate('debt',5000000),true);assert.equal(r.api.get().company.debt,15000000);assert.equal(r.api.get().company.cash,95000000);});
+test('NG-10 release audit remains finite and bounded after 100 years',()=>{const r=createRuntime();r.api.fresh('NG CENTURY');r.api.eval('state.company.cash=1000000000000;state.company.debt=0;');r.api.simulate(5200);const a=plain(r.api.ngAudit());assert.equal(a.finite,true);assert.ok(a.saveBytes<5*1024*1024);assert.ok(a.companies>=60);assert.ok(a.companies<=180);});
+
+
+test('NG VC lifecycle records start week and realizes company proceeds after maturity',()=>{const r=createRuntime(),a=r.api;a.fresh('NGVC','ramen','東京');a.eval('state.company.cash=1e9;ngSourceVC();');let s=a.get(),v=s.ng.vc[0];assert.equal(v.startWeek,s.week);assert.equal(a.ngInvestVC(v.id,20000000),true);a.eval("state.ng.vc[0].valuation=100000000;state.ng.vc[0].exitReady=true;");const before=a.get().company.cash;a.eval("ngExitVC(state.ng.vc[0].id)");s=a.get();assert.equal(s.ng.vc[0].status,'exited');assert.ok(s.company.cash>before);});
+
+
+test('NG corporate M&A follows DD financing bid close and preserves personal cash',()=>{const r=createRuntime(),a=r.api;a.fresh('NGMA','ramen','東京');a.eval('state.company.cash=2e10;ngEnsureIntegrated(state);state.publicUniverse.companies[0].ownership.player=.10;');const before=a.get().personal.cash,target=a.get().publicUniverse.companies[0].id,id=a.ngStartMA(target);assert.ok(id);assert.equal(a.ngRunMADD(id),true);assert.equal(a.ngArrangeMAFinancing(id),true);assert.equal(a.ngSubmitMABid(id),true);assert.equal(a.ngCloseMA(id),true);const s=a.get(),d=s.ng.deals.find(x=>x.id===id),t=s.publicUniverse.companies.find(x=>x.id===target);assert.equal(d.status,'closed');assert.equal(t.status,'controlled');assert.equal(t.ownership.player,.51);assert.equal(s.personal.cash,before);assert.ok(s.ng.integrations.some(x=>x.dealId===id));});
+
+
+test('NG shared universe links PE deal and ownership lifecycle to the same company',()=>{const r=createRuntime(),a=r.api;a.fresh('UNIVERSE','ramen','東京');a.eval("state.pe.unlocked=true;state.pe.funds=[{id:'Fund I',number:1,size:3e9,commitments:3e9,cash:3e9,invested:0,slots:5,investmentEndWeek:999,endWeek:1200,ddUsedYear:0}];state.pe.deals=[{id:'pe_link',name:'Legacy Target',businessID:'ramen',value:5e8,ebitda:5e7,status:'open',expires:99,dd:false}];ngLinkPEUniverse(state);");let s=a.get(),d=s.pe.deals[0];assert.ok(d.universeCompanyId);const cid=d.universeCompanyId;a.eval("state.pe.portfolio=[{id:'pe_link',name:state.pe.deals[0].name,businessID:'ramen',fundId:'Fund I',entryWeek:1,age:1,entryValue:state.pe.deals[0].value,value:state.pe.deals[0].value,equityInvested:2e8,debt:2e8,improvement:0,cash:1e7,status:'held',universeCompanyId:state.pe.deals[0].universeCompanyId}];ngSyncPEOwnership(state);");s=a.get();assert.equal(s.publicUniverse.companies.find(x=>x.id===cid).status,'private_pe');a.eval("state.pe.portfolio[0].status='exited';state.pe.portfolio[0].exitValue=900000000;ngSyncPEOwnership(state);");s=a.get();assert.equal(s.publicUniverse.companies.find(x=>x.id===cid).status,'listed');});
+
+
+test('NG VC startup keeps one company identity from seed investment through IPO exit',()=>{const r=createRuntime(),a=r.api;a.fresh('VCUNIVERSE','ramen','東京');a.eval('state.company.cash=1e9;ngSourceVC();');let s=a.get(),v=s.ng.vc[0],cid=v.universeCompanyId,c=s.publicUniverse.companies.find(x=>x.id===cid);assert.ok(c);assert.equal(c.status,'startup');const personal=s.personal.cash;assert.equal(a.ngInvestVC(v.id,20000000),true);s=a.get();c=s.publicUniverse.companies.find(x=>x.id===cid);assert.equal(c.status,'vc_backed');assert.ok(c.ownership.player>0);assert.equal(s.personal.cash,personal);a.eval("state.ng.vc[0].valuation=120000000;state.ng.vc[0].exitReady=true;ngExitVC(state.ng.vc[0].id);");s=a.get();c=s.publicUniverse.companies.find(x=>x.id===cid);assert.equal(c.status,'listed');assert.equal(c.public,true);assert.equal(c.ownership.player,0);assert.equal(s.ng.vc[0].universeCompanyId,cid);});
+
+
+test('NG company universe compaction preserves active VC company references',()=>{const r=createRuntime(),a=r.api;a.fresh('BOUNDVC','ramen','東京');a.eval("state.company.cash=1e12;for(let i=0;i<200;i++){state.week=i*13+1;const v=ngSourceVC();if(v&&i===199)ngInvestVC(v.id,10000000);if(v&&i<199){v.status='exited';const c=state.publicUniverse.companies.find(x=>x.id===v.universeCompanyId);if(c){c.status='listed';c.public=true;c.ipoWeek=state.week;}}}ngBoundCompanyUniverse(state);");const s=a.get(),active=s.ng.vc.find(v=>v.status==='portfolio');assert.ok(s.publicUniverse.companies.length<=180);assert.ok(active);assert.ok(s.publicUniverse.companies.some(c=>c.id===active.universeCompanyId));});
+
+
+test('NG universe compaction archives stale uninvested startups while preserving history',()=>{const r=createRuntime(),a=r.api;a.fresh('ARCHIVEVC','ramen','東京');a.eval("for(let i=0;i<190;i++){state.week=i*13+1;ngSourceVC();}ngBoundCompanyUniverse(state);");const s=a.get();assert.ok(s.publicUniverse.companies.length<=180);const archived=s.ng.vc.filter(v=>v.companyArchive);assert.ok(archived.length>0);assert.ok(archived.every(v=>v.status==='passed'));assert.ok(archived.every(v=>v.companyArchive.id===v.universeCompanyId));});
+
+
+test('NG company lifecycle ledger records ownership and control transitions',()=>{const r=createRuntime(),a=r.api;a.fresh('LIFECYCLE','ramen','東京');a.eval('state.company.cash=1e12;');const id=a.get().publicUniverse.companies[0].id;assert.equal(a.ngBuyStake(id,.12),true);assert.equal(a.ngTender(id,.51),true);const co=a.get().publicUniverse.companies.find(c=>c.id===id);assert.equal(co.status,'controlled');assert.equal(co.control.controller,'player');assert.equal(co.control.pct,.51);assert.ok(co.events.some(e=>e.type==='stake_purchase'));assert.ok(co.events.some(e=>e.type==='status_change'&&e.to==='controlled'));});
+
+test('NG PE lifecycle records private and relisted transitions on one company',()=>{const r=createRuntime(),a=r.api;a.fresh('PELIFE','ramen','東京');a.eval("const c=state.publicUniverse.companies[0];state.pe.deals=[{id:'pd1',universeCompanyId:c.id}];state.pe.portfolio=[{id:'pd1',fundId:'f1',status:'held',universeCompanyId:c.id,value:c.revenue,ebitda:c.ebitda,cash:1e7}];ngSyncPEOwnership(state);state.pe.portfolio[0].status='exited';state.pe.portfolio[0].exitValue=c.price*c.shares;ngSyncPEOwnership(state);");const co=a.get().publicUniverse.companies[0];assert.equal(co.status,'listed');assert.ok(co.events.some(e=>e.type==='status_change'&&e.to==='private_pe'));assert.ok(co.events.some(e=>e.type==='status_change'&&e.to==='listed'&&e.method==='pe_exit'));});
+
+
+test('NG1 staffing payroll is causal in weekly store economics',()=>{const r=createRuntime(),a=r.api;a.fresh('PAYROLL','ramen','東京');const id=a.get().company.stores[0].id;a.eval("const st=state.company.stores[0];ng1EnsureStore(state,st);st.workforce.assigned=st.workforce.required;st.workforce.wageWeekly=10000;");const low=a.eval("(()=>{const st=state.company.stores[0];return runStore(state,st).cost})()");a.eval("state.supplyChain.inventory[state.company.stores[0].id].units=100000;state.supplyChain.inventory[state.company.stores[0].id].assetValue=100000*PILLARS.ramen.unitCost;state.company.stores[0].workforce.wageWeekly=20000;");const high=a.eval("(()=>runStore(state,state.company.stores[0]).cost)()");assert.ok(high>low);});
+
+test('NG1 received procurement converts company cash into inventory asset without personal cash movement',()=>{const r=createRuntime(),a=r.api;a.fresh('PROCURE','ramen','東京');a.eval("state.company.cash=1e9;const st=state.company.stores[0];ng1EnsureStore(state,st);state.supplyChain.inventory[st.id].units=0;state.supplyChain.inventory[st.id].assetValue=0;const o=ng1OrderForStore(state,st);o.arrivalWeek=state.week;");const before=a.get(),personal=before.personal.cash,cash=before.company.cash;a.eval("ng1ReceiveOrders(state)");const s=a.get(),inv=s.supplyChain.inventory[s.company.stores[0].id];assert.ok(s.company.cash<cash);assert.ok(inv.units>0);assert.ok(inv.assetValue>0);assert.equal(s.personal.cash,personal);});
+
+
+test('NG1 inventory COGS is recognized in profit but not paid twice in company cash',()=>{const r=createRuntime(),a=r.api;a.fresh('COGSBRIDGE','ramen','東京');a.eval("state.company.cash=1e9;const st=state.company.stores[0];ng1EnsureStore(state,st);state.supplyChain.inventory[st.id].units=100000;state.supplyChain.inventory[st.id].assetValue=100000*PILLARS.ramen.unitCost;state.supplyChain.orders=[];");const before=a.get().company.cash;a.eval("processCompanyWeek(state)");const s=a.get();assert.ok(Number.isFinite(s.company.cash));assert.ok(Number.isFinite(s.company.lastWeekProfit));assert.equal(s.supplyChain._weeklyInventoryExpense,0);assert.ok(s.company.cash>before-5e7);});
+
+
+test('NG1 default staffed payroll preserves legacy store wage envelope',()=>{const r=createRuntime(),a=r.api;a.fresh('WAGECAL','ramen','東京');a.eval("const st=state.company.stores[0];ng1EnsureStore(state,st);");const s=a.get(),st=s.company.stores[0];assert.ok(Math.abs(st.workforce.assigned*st.workforce.wageWeekly-52500)<1);});
+
+
+test('NG1 individual employees are deterministic and aggregate into store workforce',()=>{const r1=createRuntime(),r2=createRuntime();r1.api.fresh('PEOPLE','ramen','東京');r2.api.fresh('PEOPLE','ramen','東京');r1.api.eval("ng1EnsureAll(state)");r2.api.eval("ng1EnsureAll(state)");const a=r1.api.get(),b=r2.api.get(),id=a.company.stores[0].id,id2=b.company.stores[0].id,ea=a.organization.employees.filter(e=>e.storeId===id&&e.status==='active'),eb=b.organization.employees.filter(e=>e.storeId===id2&&e.status==='active'),shape=xs=>xs.map(({role,skill,training,morale,wageWeekly,status,hiredWeek})=>({role,skill,training,morale,wageWeekly,status,hiredWeek}));assert.equal(ea.length,3);assert.equal(JSON.stringify(shape(ea)),JSON.stringify(shape(eb)));assert.equal(ea.filter(e=>e.role==='manager').length,1);assert.ok(ea.every(e=>Number.isFinite(e.skill)&&Number.isFinite(e.wageWeekly)));assert.equal(a.company.stores[0].workforce.assigned,ea.length);});
+
+test('NG1 employee payroll remains company-only and preserves calibrated initial wage',()=>{const r=createRuntime(),a=r.api;a.fresh('PEOPLEPAY','ramen','東京');a.eval("ng1EnsureAll(state)");const s=a.get(),id=s.company.stores[0].id,emps=s.organization.employees.filter(e=>e.storeId===id&&e.status==='active');assert.ok(Math.abs(emps.reduce((n,e)=>n+e.wageWeekly,0)-52500)<1);const personal=s.personal.cash;a.eval("processCompanyWeek(state)");assert.equal(a.get().personal.cash,personal);});
+
+
+test('NG1 hire and training spend company cash only and improve employee capability',()=>{const r=createRuntime(),a=r.api;a.fresh('HRFLOW','ramen','東京');a.eval("ng1EnsureAll(state);state.company.cash+=1000000;const sid=state.company.stores[0].id;ng1HireEmployee(sid);");let s=a.get(),sid=s.company.stores[0].id,emps=s.organization.employees.filter(e=>e.storeId===sid&&e.status==='active');assert.equal(emps.length,4);const personal=s.personal.cash,cash=s.company.cash,e=emps[3],skill=e.skill,training=e.training;a.eval("ng1TrainEmployee('"+e.id+"')");s=a.get();const trained=s.organization.employees.find(x=>x.id===e.id);assert.ok(s.company.cash<cash);assert.equal(s.personal.cash,personal);assert.ok(trained.skill>skill&&trained.training>training);});
+
+test('NG1 transfer and termination change active store staffing without touching personal cash',()=>{const r=createRuntime(),a=r.api;a.fresh('HRMOVE','ramen','東京');a.eval("state.company.cash+=10000000;openStore('ramen');ng1EnsureAll(state)");let s=a.get();const from=s.company.stores[0],to=s.company.stores[1],e=s.organization.employees.find(x=>x.storeId===from.id&&x.status==='active'&&x.role==='staff'),personal=s.personal.cash;a.eval("ng1TransferEmployee('"+e.id+"','"+to.id+"')");s=a.get();assert.equal(s.organization.employees.find(x=>x.id===e.id).storeId,to.id);a.eval("ng1TerminateEmployee('"+e.id+"')");s=a.get();assert.equal(s.organization.employees.find(x=>x.id===e.id).status,'terminated');assert.equal(s.personal.cash,personal);});
+
+
+test('NG1 supplier choice changes deterministic procurement cost and lead time',()=>{const r=createRuntime(),a=r.api;a.fresh('SUPPLYCHOICE','ramen','東京');a.eval("ng1EnsureAll(state);const st=state.company.stores[0],inv=state.supplyChain.inventory[st.id];inv.units=0;inv.assetValue=0;ng1SelectSupplier(st.id,'supplier_ramen_value');ng1OrderForStore(state,st);");let s=a.get(),st=s.company.stores[0],o=s.supplyChain.orders.find(x=>x.storeId===st.id&&x.status==='ordered');assert.equal(st.supplierId,'supplier_ramen_value');assert.equal(o.supplierId,'supplier_ramen_value');assert.equal(o.unitCost,282);assert.ok(o.arrivalWeek>=s.week+2);assert.ok(o.supplierDelayWeeks===0||o.supplierDelayWeeks===1);});
+
+test('NG1 premium supplier costs more and is deterministically high reliability',()=>{const r=createRuntime(),a=r.api;a.fresh('SUPPLYPREMIUM','ramen','東京');a.eval("ng1EnsureAll(state);const st=state.company.stores[0],inv=state.supplyChain.inventory[st.id];inv.units=0;inv.assetValue=0;ng1SelectSupplier(st.id,'supplier_ramen_premium');ng1OrderForStore(state,st);");const s=a.get(),st=s.company.stores[0],o=s.supplyChain.orders.find(x=>x.storeId===st.id&&x.status==='ordered');assert.equal(o.unitCost,321);assert.equal(o.supplierId,'supplier_ramen_premium');assert.ok(o.arrivalWeek>=s.week+1);assert.ok(s.supplyChain.suppliers.filter(x=>x.businessID==='ramen').length>=3);});
+
+
+test('NG1 default supplier preserves legacy one-week deterministic delivery',()=>{const r=createRuntime(),a=r.api;a.fresh('SUPPLYLEGACY','ramen','東京');a.eval("ng1EnsureAll(state);const st=state.company.stores[0],inv=state.supplyChain.inventory[st.id];inv.units=0;inv.assetValue=0;ng1OrderForStore(state,st);");const s=a.get(),st=s.company.stores[0],o=s.supplyChain.orders.find(x=>x.storeId===st.id&&x.status==='ordered');assert.equal(st.supplierId,'supplier_ramen');assert.equal(o.unitCost,300);assert.equal(o.arrivalWeek,s.week+1);assert.equal(o.supplierDelayWeeks,0);});
+
+
+test('NG1 staffing target cannot create employees for free',()=>{const r=createRuntime(),a=r.api;a.fresh('STAFFTARGET','ramen','東京');a.eval("ng1EnsureAll(state);");const before=a.get(),store=before.company.stores[0],cash=before.company.cash,active=before.organization.employees.filter(e=>e.storeId===store.id&&e.status==='active').length;const accepted=a.ng1Staff(store.id,active+1);const after=a.get();assert.equal(accepted,false);assert.equal(after.organization.employees.filter(e=>e.storeId===store.id&&e.status==='active').length,active);assert.equal(after.company.cash,cash);});
+
+test('NG1 employee history compaction preserves active staff and bounded records',()=>{const r=createRuntime(),a=r.api;a.fresh('STAFFARCHIVE','ramen','東京');a.eval("ng1EnsureAll(state);const st=state.company.stores[0],p=ng1StoreProfile(st.businessID);for(let i=0;i<100;i++){const e=ng1EmployeeSeed(state,st,1000+i,p.wage);e.status='terminated';e.terminatedWeek=i+1;state.organization.employees.push(e);}");a.ng1Compact();const s=a.get(),active=s.organization.employees.filter(e=>e.status==='active'),terminal=s.organization.employees.filter(e=>e.status!=='active');assert.ok(active.length>0);assert.ok(terminal.length<=80);assert.ok((s.organization.employeeArchive||[]).length<=120);assert.equal(active.length,s.company.stores[0].workforce.assigned);});

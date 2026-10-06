@@ -306,3 +306,19 @@ test('PE clarity pipeline liquidity DDQ and company M&A work on iPhone',async({p
   await expectNoHorizontalOverflow(page);
   expect(errors).toEqual([]);
 });
+
+
+test('NG1 workforce inventory and supplier controls are usable on iPhone',async({page})=>{
+  const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+  await page.goto('./');await page.locator('[data-act="start"]').click();
+  await page.evaluate(()=>{state.company.cash=10_000_000;save();tab='operations';selectedBusiness='ramen';render();});
+  await expect(page.locator('[data-ng1-hire]').first()).toBeVisible();
+  await expect(page.locator('[data-ng1-supplier]').first()).toBeVisible();
+  await expect(page.getByText('在庫',{exact:true}).first()).toBeVisible();
+  const before=await page.evaluate(()=>state.organization.employees.filter(e=>e.status==='active').length);
+  await page.locator('[data-ng1-hire]').first().click();
+  expect(await page.evaluate(()=>state.organization.employees.filter(e=>e.status==='active').length)).toBe(before+1);
+  await page.locator('[data-ng1-supplier]').first().selectOption('supplier_ramen_value');
+  expect(await page.evaluate(()=>state.company.stores[0].supplierId)).toBe('supplier_ramen_value');
+  await expectNoHorizontalOverflow(page);expect(errors).toEqual([]);
+});
